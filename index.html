@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Buen Día Café - Club de Fidelización</title>
-    <meta name="description" content="Tu tarjeta digital de fidelización en Buen Día Café. Acumula sellos, disfruta tu café habitual y canjea premios.">
+    <title>Buen Día Café - Tu Tarjeta de Fidelización</title>
+    <meta name="description" content="Tu tarjeta digital de fidelización en Buen Día Café. Acumula sellos, sube de nivel y canjea premios exclusivos.">
 
     <!-- Tipografía Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Configuración PWA -->
-    <meta name="theme-color" content="#047857">
+    <meta name="theme-color" content="#1A1A1A">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
@@ -34,8 +34,7 @@
         <header class="live-status-bar" id="live-status-bar">
             <div class="live-status-top">
                 <div class="brand-badge">
-                    <div class="brand-icon-mini">☕</div>
-                    <span class="brand-name">Buen Día Café</span>
+                    <img src="logo.png" alt="Buen día Café" class="brand-logo-img">
                 </div>
                 <div class="open-status-pill" id="cafe-open-pill">
                     <span class="pulse-dot"></span>
@@ -43,7 +42,6 @@
                 </div>
             </div>
             <div class="bean-of-week">
-                <span class="bean-icon">✨</span>
                 <span class="bean-text" id="bean-of-week-text">
                     Grano de la semana: <strong>Colombia Huila</strong> • Caramelo y Frutos Rojos
                 </span>
@@ -64,12 +62,12 @@
             <!-- Cabecera de la Tarjeta -->
             <div class="card-top">
                 <div class="member-greeting">
-                    <span class="greeting-label">Club de Fidelización</span>
                     <h2 class="member-name" id="card-member-name">¡Hola, Amigo!</h2>
                 </div>
-                <div class="member-badge">
-                    <span>★</span>
-                    <span id="card-member-tier">Socio Club</span>
+                <div class="member-badge" id="card-member-badge">
+                    <span class="star-empty">☆</span>
+                    <span class="star-empty">☆</span>
+                    <span class="star-empty">☆</span>
                 </div>
             </div>
 
@@ -77,12 +75,11 @@
             <div class="qr-and-habitual-section">
                 <div class="qr-box">
                     <div id="qr-code"></div>
-                    <div class="customer-id-tag" id="card-customer-id">ID: ---</div>
                 </div>
 
                 <div class="habitual-preview-box">
                     <div class="habitual-header">
-                        <span class="habitual-title">☕ Mi Habitual</span>
+                        <span class="habitual-title">☀️ Mi Habitual</span>
                         <button type="button" class="btn-edit-habitual" id="btn-open-habitual-modal">Editar</button>
                     </div>
                     <div class="habitual-drink-name" id="habitual-drink-display">Flat White</div>
@@ -94,7 +91,7 @@
                 </div>
             </div>
 
-            <!-- Grilla de 10 Sellos con Metas Intermedias -->
+            <!-- Grilla de 10 Sellos -->
             <div class="stamps-section">
                 <div class="stamps-progress-header">
                     <span class="progress-label" id="stamps-progress-message">Llevas 0 de 10 sellos</span>
@@ -106,21 +103,6 @@
                 </div>
             </div>
 
-            <!-- Leyenda de Metas Intermedias -->
-            <div class="rewards-legend">
-                <div class="reward-step" id="step-reward-4">
-                    <span class="reward-step-icon">🍪</span>
-                    <span><strong>Sello 4:</strong> Galleta o bollería artesanal</span>
-                </div>
-                <div class="reward-step" id="step-reward-8">
-                    <span class="reward-step-icon">🍯</span>
-                    <span><strong>Sello 8:</strong> Extra shot de café o jarabe</span>
-                </div>
-                <div class="reward-step" id="step-reward-10">
-                    <span class="reward-step-icon">☕</span>
-                    <span><strong>Sello 10:</strong> ¡Café de la casa GRATIS!</span>
-                </div>
-            </div>
         </section>
 
         <!-- ACCIONES RÁPIDAS: REFERIDOS Y PROXIMIDAD -->
@@ -220,7 +202,7 @@
             </div>
             
             <div class="referral-share-box">
-                <p style="font-size: 13px; color: #fff;">Tu código de socio amigo:</p>
+                <p style="font-size: 13px; color: #000;">Tu código de socio amigo:</p>
                 <div class="referral-code-badge" id="referral-code-display">BUENDIA-SOCIO</div>
                 <p class="referral-rules">
                     Comparte tu enlace por WhatsApp. Cuando tu amigo se registre y tome su primer café, ¡ambos reciben 1 sello de regalo!
@@ -231,7 +213,7 @@
                 <span>💬</span> Compartir por WhatsApp
             </a>
 
-            <button type="button" class="btn-primary-action" id="btn-copy-referral-link" style="background: rgba(255,255,255,0.1); border-color: var(--border-subtle);">
+            <button type="button" class="btn-primary-action" id="btn-copy-referral-link">
                 <span>📋</span> Copiar enlace de invitación
             </button>
         </div>
@@ -243,7 +225,7 @@
     <div class="modal-overlay" id="modal-register">
         <div class="modal-sheet">
             <div class="modal-header">
-                <h3>Bienvenido a Buen Día Club</h3>
+                <h3>Bienvenido a Buen Día Café</h3>
             </div>
             <p style="font-size: 13px; color: var(--text-muted);">
                 Ingresa tu nombre y teléfono para activar tu tarjeta y comenzar a sumar sellos hoy mismo.
@@ -263,7 +245,7 @@
                 <div class="form-group">
                     <label for="reg-birthday">Fecha de Cumpleaños (Opcional)</label>
                     <input type="date" id="reg-birthday" class="form-input">
-                    <small style="font-size: 11px; color: var(--gold);">🎂 ¡Te regalaremos un café en tu semana de cumpleaños!</small>
+                    <small style="font-size: 11px; color: var(--primary);">🎂 ¡Te regalaremos un café en tu semana de cumpleaños!</small>
                 </div>
 
                 <button type="submit" class="btn-primary-action">Comenzar y Activar Tarjeta</button>

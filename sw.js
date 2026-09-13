@@ -1,5 +1,5 @@
 // Service Worker para Buen Día Café - Club de Fidelización
-const CACHE_NAME = 'buendia-fidelizacion-v1.0.0';
+const CACHE_NAME = 'buendia-fidelizacion-v2.0.0';
 const ASSETS = [
   './',
   './index.html',

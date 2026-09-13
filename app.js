@@ -1,7 +1,8 @@
 /**
  * Buen Día Café - Club de Fidelización
  * Lógica completa de cliente: Tarjeta instantánea, QR, Mi Café Habitual,
- * Metas intermedias, Cumpleaños, Referidos, Geolocalización y Notificaciones.
+ * Sistema de Rangos (Bronce/Plata/Oro), Estrellas, Cumpleaños, Referidos,
+ * Geolocalización y Notificaciones.
  */
 
 // 1. CONFIGURACIÓN DE FIREBASE
@@ -30,6 +31,39 @@ const CAFE_LOCATION = {
     radiusMeters: 300 // Radio de activación: 300 metros a la redonda
 };
 
+// ==========================================================
+// SISTEMA DE RANGOS / NIVELES
+// ==========================================================
+const TIER_CONFIG = {
+    1: {
+        name: 'Senda Bronce',
+        icon: '🥉',
+        color: '#CD7F32',
+        cssClass: '',
+        reward: 'Café gratis',
+        rewardFull: '¡Café de la casa GRATIS!'
+    },
+    2: {
+        name: 'Senda Plata',
+        icon: '🥈',
+        color: '#C0C0C0',
+        cssClass: 'tier-silver',
+        reward: 'Café + Galleta',
+        rewardFull: '¡Café + Galleta artesanal GRATIS!'
+    },
+    3: {
+        name: 'Senda Oro',
+        icon: '🥇',
+        color: '#FFD700',
+        cssClass: 'tier-gold',
+        reward: 'Specialty + Postre',
+        rewardFull: '¡Café Specialty + Postre GRATIS!'
+    }
+};
+
+// Imagen del logo (grano-sol) para usar en la grilla de sellos
+const GRANO_SOL_SVG = `<img src="logo.png" alt="Sello" style="width: 100%; height: 100%; object-fit: contain;">`;
+
 // Estado Global
 let currentCustomerId = localStorage.getItem('buendia_customer_id') || null;
 let currentCustomerData = null;
@@ -44,8 +78,8 @@ const birthdayBanner = document.getElementById('birthday-banner');
 
 // Tarjeta
 const cardMemberName = document.getElementById('card-member-name');
-const cardMemberTier = document.getElementById('card-member-tier');
-const cardCustomerId = document.getElementById('card-customer-id');
+const cardMemberBadge = document.getElementById('card-member-badge');
+// Tier indicator removed from UI
 const qrCodeContainer = document.getElementById('qr-code');
 
 // Café habitual
@@ -64,9 +98,6 @@ const inputHabitualNotes = document.getElementById('habitual-notes');
 const stampsProgressMessage = document.getElementById('stamps-progress-message');
 const stampsCountLabel = document.getElementById('stamps-count-label');
 const stampsGridContainer = document.getElementById('stamps-grid-container');
-const stepReward4 = document.getElementById('step-reward-4');
-const stepReward8 = document.getElementById('step-reward-8');
-const stepReward10 = document.getElementById('step-reward-10');
 
 // Referidos
 const btnOpenReferralModal = document.getElementById('btn-open-referral-modal');
@@ -199,7 +230,12 @@ function loadCustomerRealtime(customerId) {
 
         // Si es la primera vez que se carga en esta sesión y aumentaron sellos, podemos animar
         if (currentCustomerData && (data.stamps || 0) > (currentCustomerData.stamps || 0)) {
-            triggerStampCelebration(data.stamps);
+            triggerStampCelebration(data.stamps, data.tier || 1);
+        }
+
+        // Detect tier up
+        if (currentCustomerData && (data.tier || 1) > (currentCustomerData.tier || 1)) {
+            triggerTierUpCelebration(data.tier);
         }
 
         currentCustomerData = data;
@@ -218,22 +254,20 @@ function loadCustomerRealtime(customerId) {
 function renderCustomerUI(data) {
     const stamps = data.stamps || 0;
     const name = data.name || 'Socio';
+    const tier = data.tier || 1;
+    const starsEarned = data.starsEarned || 0;
 
     // 1. Saludo y Nombre
     cardMemberName.textContent = `¡Hola, ${name.split(' ')[0]}!`;
-    cardCustomerId.textContent = `ID: ${data.id}`;
 
-    // 2. Nivel de Socio
-    if (stamps >= 10 || (data.rewardsClaimed && data.rewardsClaimed > 0)) {
-        cardMemberTier.textContent = '★ Coffee Lover VIP';
-    } else {
-        cardMemberTier.textContent = '★ Socio Club';
-    }
+    // 2. Tier / Nivel indicator
+    // Tier indicator updating removed // 3. Estrellas en el badge (esquina superior derecha)
+    renderStarsBadge(starsEarned);
 
-    // 3. Código QR Dinámico
+    // 4. Código QR Dinámico
     renderQRCode(data.id);
 
-    // 4. "Mi Café Habitual"
+    // 5. "Mi Café Habitual"
     const fav = data.favoriteCoffee || {
         drink: "Flat White",
         milk: "Leche de Avena",
@@ -255,22 +289,32 @@ function renderCustomerUI(data) {
     inputHabitualSweetener.value = fav.sweetener || "Sin azúcar";
     inputHabitualNotes.value = fav.notes || "";
 
-    // 5. Grilla de 10 Sellos con Metas Intermedias
+    // 6. Grilla de 10 Sellos con Grano-Sol
     renderStampsGrid(stamps);
 
-    // 6. Mensajes de progreso
-    renderProgressMessages(stamps);
-
-    // 7. Leyenda de Recompensas
-    stepReward4.classList.toggle('unlocked', stamps >= 4);
-    stepReward8.classList.toggle('unlocked', stamps >= 8);
-    stepReward10.classList.toggle('unlocked', stamps >= 10);
+    // 7. Mensajes de progreso según tier
+    renderProgressMessages(stamps, tier);
 
     // 8. Detección de Cumpleaños
     checkBirthdayBanner(data.birthdate);
 
     // 9. Código de Referido
     setupReferralUI(data);
+}
+
+// ==========================================================
+// RENDERIZADO DE ESTRELLAS (BADGE SUPERIOR DERECHO)
+// ==========================================================
+function renderStarsBadge(starsEarned) {
+    let starsHtml = '';
+    for (let i = 1; i <= 3; i++) {
+        if (i <= starsEarned) {
+            starsHtml += `<span class="star-filled">★</span>`;
+        } else {
+            starsHtml += `<span class="star-empty">☆</span>`;
+        }
+    }
+    cardMemberBadge.innerHTML = starsHtml;
 }
 
 // Renderizar Código QR
@@ -281,16 +325,18 @@ function renderQRCode(text) {
             text: text,
             width: 114,
             height: 114,
-            colorDark: "#064e3b",
+            colorDark: "#1A1A1A",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.M
         });
     } else {
-        qrCodeContainer.innerHTML = `<span style="font-family:monospace;font-size:12px;font-weight:700;color:#047857;">${text}</span>`;
+        qrCodeContainer.innerHTML = `<span style="font-family:monospace;font-size:12px;font-weight:700;color:#1A1A1A;">${text}</span>`;
     }
 }
 
-// Renderizar Grilla de 10 Sellos
+// ==========================================================
+// RENDERIZAR GRILLA DE 10 SELLOS CON GRANO-SOL
+// ==========================================================
 function renderStampsGrid(stamps) {
     stampsGridContainer.innerHTML = '';
 
@@ -298,52 +344,35 @@ function renderStampsGrid(stamps) {
         const slot = document.createElement('div');
         const isActive = i <= stamps;
         let milestoneClass = '';
-        let iconChar = '☕';
-        let badgeLabel = `${i}`;
         let tagHtml = '';
+        let badgeLabel = `${i}`;
 
-        if (i === 4) {
-            milestoneClass = ' milestone-4';
-            iconChar = '🍪';
-            badgeLabel = 'Galleta';
-            tagHtml = '<span class="stamp-reward-tag">PREMIO</span>';
-        } else if (i === 8) {
-            milestoneClass = ' milestone-8';
-            iconChar = '🍯';
-            badgeLabel = '+Shot';
-            tagHtml = '<span class="stamp-reward-tag">PREMIO</span>';
-        } else if (i === 10) {
+        if (i === 10) {
             milestoneClass = ' milestone-10';
-            iconChar = '🎁';
-            badgeLabel = 'GRATIS';
-            tagHtml = '<span class="stamp-reward-tag">CAFÉ</span>';
+            badgeLabel = '🎁';
+            tagHtml = '<span class="stamp-reward-tag">PREMIO</span>';
         }
 
         slot.className = `stamp-slot${isActive ? ' active' : ''}${milestoneClass}`;
         slot.innerHTML = `
             ${tagHtml}
-            <span class="stamp-icon">${isActive ? iconChar : (i === 10 ? '🎁' : (i === 4 ? '🍪' : (i === 8 ? '🍯' : '☕')))}</span>
+            <span class="stamp-icon">${GRANO_SOL_SVG}</span>
             <span class="stamp-badge-label">${badgeLabel}</span>
         `;
         stampsGridContainer.appendChild(slot);
     }
 }
 
-// Mensajes de progreso
-function renderProgressMessages(stamps) {
+// Mensajes de progreso adaptados al tier
+function renderProgressMessages(stamps, tier) {
+    const tierInfo = TIER_CONFIG[tier] || TIER_CONFIG[1];
     stampsCountLabel.textContent = `${Math.min(stamps, 10)} / 10`;
 
     if (stamps >= 10) {
-        stampsProgressMessage.textContent = '🎉 ¡Tienes un café gratis listo para canjear!';
-    } else if (stamps >= 8) {
-        const remaining = 10 - stamps;
-        stampsProgressMessage.textContent = `¡Solo ${remaining} sello${remaining > 1 ? 's' : ''} más para tu café gratis!`;
-    } else if (stamps >= 4) {
-        const remaining = 8 - stamps;
-        stampsProgressMessage.textContent = `¡Galleta desbloqueada! A ${remaining} sello${remaining > 1 ? 's' : ''} de tu Shot extra`;
+        stampsProgressMessage.textContent = `🎉 ¡${tierInfo.rewardFull} Listo para canjear!`;
     } else {
-        const remaining = 4 - stamps;
-        stampsProgressMessage.textContent = `Te falta${remaining > 1 ? 'n' : ''} ${remaining} sello${remaining > 1 ? 's' : ''} para tu galleta artesanal`;
+        const remaining = 10 - stamps;
+        stampsProgressMessage.textContent = `Te falta${remaining > 1 ? 'n' : ''} ${remaining} sello${remaining > 1 ? 's' : ''} para: ${tierInfo.reward}`;
     }
 }
 
@@ -543,13 +572,31 @@ function checkReengagementNotification(data) {
 }
 
 // ==========================================================
-// CELEBRACIÓN DE SELLOS (ANIMACIÓN / FEEDBACK)
+// CELEBRACIÓN DE SELLOS Y SUBIDA DE NIVEL
 // ==========================================================
-function triggerStampCelebration(newStamps) {
+function triggerStampCelebration(newStamps, tier) {
+    const tierInfo = TIER_CONFIG[tier] || TIER_CONFIG[1];
+    if (newStamps >= 10) {
+        showToast(
+            `🎉 ¡${tierInfo.rewardFull}`,
+            `¡Completaste la ${tierInfo.name}! Muestra tu QR al barista para canjear.`,
+            '🏆'
+        );
+    } else {
+        showToast(
+            '🎉 ¡Nuevo sello acreditado!',
+            `¡Excelente! Ya tienes ${newStamps} sello${newStamps > 1 ? 's' : ''} en tu ${tierInfo.name}.`,
+            '☀️'
+        );
+    }
+}
+
+function triggerTierUpCelebration(newTier) {
+    const tierInfo = TIER_CONFIG[newTier] || TIER_CONFIG[1];
     showToast(
-        '🎉 ¡Nuevo sello acreditado!',
-        `¡Excelente! Ya tienes ${newStamps} sello${newStamps > 1 ? 's' : ''} en tu tarjeta.`,
-        '☕'
+        `⭐ ¡Subiste a ${tierInfo.name}!`,
+        `Has ganado una nueva estrella. Ahora tus premios son mejores: ${tierInfo.reward}`,
+        tierInfo.icon
     );
 }
 
@@ -572,7 +619,7 @@ function initEventListeners() {
         db.ref(`customers/${currentCustomerId}/favoriteCoffee`).set(updatedHabitual)
             .then(() => {
                 closeModal(modalHabitual);
-                showToast('☕ Café Habitual guardado', 'El barista lo verá cada vez que escanee tu tarjeta.', '✅');
+                showToast('☀️ Café Habitual guardado', 'El barista lo verá cada vez que escanee tu tarjeta.', '✅');
             })
             .catch((err) => {
                 console.error('Error guardando café habitual:', err);
@@ -622,6 +669,8 @@ function initEventListeners() {
                     phone: phone,
                     birthdate: birthday || null,
                     stamps: 0,
+                    tier: 1,
+                    starsEarned: 0,
                     rewardsClaimed: 0,
                     createdAt: new Date().toISOString(),
                     lastVisit: new Date().toISOString(),
@@ -638,7 +687,7 @@ function initEventListeners() {
                     currentCustomerId = newId;
                     localStorage.setItem('buendia_customer_id', newId);
                     loadCustomerRealtime(newId);
-                    showToast('🎉 ¡Bienvenido a Buen Día Club!', 'Tu tarjeta ya está lista para comenzar a sumar sellos.', '☕');
+                    showToast('🎉 ¡Bienvenido a Buen Día Café!', 'Tu tarjeta ya está lista. ¡Comienza tu Senda Bronce!', '☀️');
                 });
             }
         });
@@ -702,7 +751,7 @@ function closeModal(modalEl) {
 }
 
 // Auxiliar de Toast in-app
-function showToast(title, desc, icon = '☕') {
+function showToast(title, desc, icon = '☀️') {
     toastTitle.textContent = title;
     toastDesc.textContent = desc;
     toastIcon.textContent = icon;
