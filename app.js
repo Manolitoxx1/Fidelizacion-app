@@ -61,8 +61,10 @@ const TIER_CONFIG = {
     }
 };
 
-// Imagen del logo (grano-sol) para usar en la grilla de sellos
-const GRANO_SOL_SVG = `<img src="logo.png" alt="Sello" style="width: 100%; height: 100%; object-fit: contain;">`;
+// Imagen del sello BDC para usar en la grilla de sellos
+const GRANO_SOL_SVG = `<img src="sello.png" alt="Sello" style="width: 100%; height: 100%; object-fit: contain;">`;
+
+const GRANO_VACIO_SVG = `<img src="grano_sol.png" alt="Sello Vacío" style="width: 100%; height: 100%; object-fit: contain;">`;
 
 // Estado Global
 let currentCustomerId = localStorage.getItem('buendia_customer_id') || null;
@@ -90,8 +92,8 @@ const modalHabitual = document.getElementById('modal-habitual');
 const btnCloseHabitualModal = document.getElementById('btn-close-habitual-modal');
 const formHabitual = document.getElementById('form-habitual');
 const inputHabitualDrink = document.getElementById('habitual-drink');
-const inputHabitualMilk = document.getElementById('habitual-milk');
-const inputHabitualSweetener = document.getElementById('habitual-sweetener');
+const inputHabitualShot = document.getElementById('habitual-shot');
+const inputHabitualDessert = document.getElementById('habitual-dessert');
 const inputHabitualNotes = document.getElementById('habitual-notes');
 
 // Sellos y metas
@@ -270,23 +272,31 @@ function renderCustomerUI(data) {
     // 5. "Mi Café Habitual"
     const fav = data.favoriteCoffee || {
         drink: "Flat White",
-        milk: "Leche de Avena",
-        sweetener: "Sin azúcar",
+        shot: "Sin shot",
+        dessert: "Sin postre ni sándwich",
         notes: ""
     };
     habitualDrinkDisplay.textContent = fav.drink || 'Flat White';
     
-    let specsHtml = `<span class="habitual-spec-tag">${fav.milk || 'Leche de Avena'}</span>`;
-    specsHtml += `<span class="habitual-spec-tag">${fav.sweetener || 'Sin azúcar'}</span>`;
+    let specsHtml = '';
+    if (fav.shot && fav.shot !== 'Sin shot') {
+        specsHtml += `<span class="habitual-spec-tag">${fav.shot}</span>`;
+    }
+    if (fav.dessert && fav.dessert !== 'Sin postre ni sándwich') {
+        specsHtml += `<span class="habitual-spec-tag">${fav.dessert}</span>`;
+    }
     if (fav.notes) {
         specsHtml += `<span class="habitual-spec-tag">${fav.notes}</span>`;
+    }
+    if (!specsHtml) {
+        specsHtml = `<span class="habitual-spec-tag">Solo café</span>`;
     }
     habitualSpecsDisplay.innerHTML = specsHtml;
 
     // Precargar modal de habitual
     inputHabitualDrink.value = fav.drink || "Flat White";
-    inputHabitualMilk.value = fav.milk || "Leche de Avena";
-    inputHabitualSweetener.value = fav.sweetener || "Sin azúcar";
+    inputHabitualShot.value = fav.shot || "Sin shot";
+    inputHabitualDessert.value = fav.dessert || "Sin postre ni sándwich";
     inputHabitualNotes.value = fav.notes || "";
 
     // 6. Grilla de 10 Sellos con Grano-Sol
@@ -335,7 +345,7 @@ function renderQRCode(text) {
 }
 
 // ==========================================================
-// RENDERIZAR GRILLA DE 10 SELLOS CON GRANO-SOL
+// RENDERIZAR GRILLA DE 10 SELLOS
 // ==========================================================
 function renderStampsGrid(stamps) {
     stampsGridContainer.innerHTML = '';
@@ -354,11 +364,22 @@ function renderStampsGrid(stamps) {
         }
 
         slot.className = `stamp-slot${isActive ? ' active' : ''}${milestoneClass}`;
-        slot.innerHTML = `
-            ${tagHtml}
-            <span class="stamp-icon">${GRANO_SOL_SVG}</span>
-            <span class="stamp-badge-label">${badgeLabel}</span>
-        `;
+
+        if (isActive) {
+            // Sello activo: muestra la imagen sello.png (GRANO_SOL_SVG)
+            slot.innerHTML = `
+                ${tagHtml}
+                <span class="stamp-icon">${GRANO_SOL_SVG}</span>
+                <span class="stamp-badge-label">${badgeLabel}</span>
+            `;
+        } else {
+            // Sello vacío: muestra el logo original (grano de café sol sin letras) en gris
+            slot.innerHTML = `
+                ${tagHtml}
+                <span class="stamp-icon">${GRANO_VACIO_SVG}</span>
+                <span class="stamp-badge-label">${badgeLabel}</span>
+            `;
+        }
         stampsGridContainer.appendChild(slot);
     }
 }
@@ -611,8 +632,8 @@ function initEventListeners() {
 
         const updatedHabitual = {
             drink: inputHabitualDrink.value,
-            milk: inputHabitualMilk.value,
-            sweetener: inputHabitualSweetener.value,
+            shot: inputHabitualShot.value,
+            dessert: inputHabitualDessert.value,
             notes: inputHabitualNotes.value.trim()
         };
 
@@ -677,8 +698,8 @@ function initEventListeners() {
                     referredBy: referrer,
                     favoriteCoffee: {
                         drink: "Flat White",
-                        milk: "Leche de Avena",
-                        sweetener: "Sin azúcar",
+                        shot: "Sin shot",
+                        dessert: "Sin postre ni sándwich",
                         notes: ""
                     }
                 };
@@ -700,8 +721,19 @@ function initEventListeners() {
     btnOpenReferralModal.addEventListener('click', () => openModal(modalReferral));
     btnCloseReferralModal.addEventListener('click', () => closeModal(modalReferral));
 
+    // Menú modal
+    const btnOpenMenuModal = document.getElementById('btn-open-menu-modal');
+    const modalMenu = document.getElementById('modal-menu');
+    const btnCloseMenuModal = document.getElementById('btn-close-menu-modal');
+
+    btnOpenMenuModal.addEventListener('click', () => {
+        openModal(modalMenu);
+        initMenuModal();
+    });
+    btnCloseMenuModal.addEventListener('click', () => closeModal(modalMenu));
+
     // Cerrar tocando el fondo oscuro
-    [modalHabitual, modalReferral].forEach((modal) => {
+    [modalHabitual, modalReferral, modalMenu].forEach((modal) => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal(modal);
         });
@@ -777,4 +809,319 @@ function initServiceWorker() {
                 });
         });
     }
+}
+
+// ==========================================================
+// MENÚ / CARTA INTERACTIVA
+// ==========================================================
+
+const MENU_DATA = [
+    {
+        category: '☕ Café',
+        items: [
+            { name: 'Espresso', desc: '30 ml', price: '$2.000' },
+            { name: 'Espresso Doble', desc: '50 ml', price: '$2.600' },
+            { name: 'Americano', desc: 'Espresso y agua caliente • 150 ml', price: '$2.400' },
+            { name: 'Americano Doble', desc: 'Espresso doble y agua caliente • 200 ml', price: '$3.000' },
+            { name: 'Cortado', desc: 'Espresso y leche • 90 ml', price: '$2.500' },
+            { name: 'Cortado Doble', desc: 'Espresso doble y leche • 200 ml', price: '$3.200' },
+            { name: 'Flat White', desc: 'Espresso doble y leche • 150 ml', price: '$3.000' },
+            { name: 'Capuccino', desc: 'Espresso y leche • 150 ml', price: '$2.700' },
+            { name: 'Capuccino Doble', desc: 'Espresso doble y leche • 270 ml', price: '$3.400' },
+            { name: 'Latte', desc: 'Espresso y leche • 270 ml', price: '$3.000' },
+            { name: 'Mocca', desc: 'Espresso, cacao y leche • 200 ml', price: '$2.900' },
+            { name: 'Mocca Doble', desc: 'Espresso doble, cacao y leche • 270 ml', price: '$3.600' },
+            { name: 'Dirty Chai', desc: 'Espresso, chai y leche • 200 ml', price: '$3.500' },
+            { name: 'Filtrado', desc: 'Colombia Caturra / Brasil Santa Lucia • 250 ml', price: '$3.000' }
+        ]
+    },
+    {
+        category: '🍵 Té & Chocolate',
+        items: [
+            { name: 'Té / Té de Hierbas', desc: '200 ml', price: '$2.000' },
+            { name: 'Té Cortado', desc: 'Té y leche texturizada • 90 ml', price: '$2.500' },
+            { name: 'Té Cortado Doble', desc: 'Té y leche texturizada • 200 ml', price: '$3.200' },
+            { name: 'Infusión', desc: 'Earl Grey / Acai Piña / Chai Masala / Rooibos • 200 ml', price: '$2.600' },
+            { name: 'Chai Latte', desc: 'Chai y leche texturizada • 270 ml', price: '$3.500' },
+            { name: 'Matcha Latte', desc: 'Matcha puro / arándano y leche • 270 ml', price: '$3.800' },
+            { name: 'Chocolate', desc: 'Cacao y leche texturizada • 200 ml', price: '$2.800' },
+            { name: 'Chocolate Grande', desc: 'Cacao y leche texturizada • 270 ml', price: '$3.400' }
+        ]
+    },
+    {
+        category: '🧊 Bebidas Frías',
+        items: [
+            { name: 'Latte Frío', desc: 'Espresso, leche y hielo • 290 ml', price: '$3.200' },
+            { name: 'Capu Frío', desc: 'Espresso doble, leche y hielo • 290 ml', price: '$3.600' },
+            { name: 'Mocca Frío', desc: 'Espresso doble, cacao, leche y hielo • 290 ml', price: '$3.800' },
+            { name: 'Café Helado', desc: 'Espresso doble, helado y crema chantilly • 290 ml', price: '$4.500' },
+            { name: 'Espresso Tonic', desc: 'Espresso doble y bebida tónica • 290 ml', price: '$3.500' },
+            { name: 'Espresso Cítrico Tonic', desc: 'Espresso doble, naranja o limón y tónica • 290 ml', price: '$3.800' },
+            { name: 'Espresso Naranja Ginger', desc: '¡NUEVO! Espresso doble, naranja y ginger beer • 290 ml', price: '$4.200' },
+            { name: 'Matcha Frío', desc: 'Matcha, leche y hielo • 290 ml', price: '$4.000' },
+            { name: 'Chai Frío', desc: 'Chai, leche y hielo • 290 ml', price: '$3.800' },
+            { name: 'Té Tonic', desc: 'Té, limón y tónica • 290 ml', price: '$3.500' }
+        ]
+    },
+    {
+        category: '🥪 Salados',
+        items: [
+            { name: 'Crema de Zapallo', desc: 'Crema de zapallo, pollo picado, semillas y rebanada de focaccia', price: '$5.800' },
+            { name: 'Napolitano', desc: 'Jamón de pierna y queso ranco, salsa pomodoro, aceitunas y tomate cherry en focaccia', price: '$6.000' },
+            { name: 'Cazador', desc: 'Pollo en salsa BBQ ahumada, queso ranco y orégano en focaccia', price: '$6.000' },
+            { name: 'Pesto', desc: 'Jamón de pierna, queso ranco, salsa pesto y aceitunas en focaccia', price: '$6.000' },
+            { name: 'Ave Pimentón', desc: 'Pollo con mayonesa especial y pimentón en pan de molde', price: '$3.800' },
+            { name: 'Ave Nuez', desc: 'Pollo, mayonesa especial y nueces picadas en pan de molde', price: '$3.600' },
+            { name: 'Ave Mayo', desc: 'Pollo y mayonesa especial en pan de molde', price: '$3.400' },
+            { name: 'Queso Jamón / Queso Champiñón', desc: 'Queso fundido sin lactosa y jamón o champiñón en pan de molde', price: '$3.000' }
+        ]
+    },
+    {
+        category: '🍰 Dulces',
+        items: [
+            { name: 'Galletón de Avena', desc: '', price: '$1.500' },
+            { name: 'Queque Marmolado', desc: '', price: '$1.800' },
+            { name: 'Pie de Limón', desc: '', price: '$3.200' },
+            { name: 'Kuchen', desc: 'Manzana nuez', price: '$3.200' },
+            { name: 'Cheesecake de Maracuyá', desc: '', price: '$3.800' },
+            { name: 'Arroz con Leche', desc: 'Tarta de arroz con leche, manjar de campo y crema diplomática', price: '$4.200' },
+            { name: 'Flor de Café', desc: 'Profiterol relleno con galleta y crema pastelera de café', price: '$4.200' },
+            { name: 'Tarta Vasca', desc: 'Tarta de queso crema horneada, mermelada artesanal y pistachos', price: '$4.500' },
+            { name: 'Picarones', desc: '¡NUEVO! Tres picarones bañados en almíbar de la casa', price: '$4.500' }
+        ]
+    },
+    {
+        category: '🧃 Jugos',
+        items: [
+            { name: 'Jugo Natural', desc: 'Mango, piña, frambuesa o arándano • 290 ml', price: '$3.000' },
+            { name: 'Limonada', desc: 'Jugo de limón, menta y jengibre • 290 ml', price: '$3.500' },
+            { name: 'Vitamina Naranja', desc: 'Jugo de naranja recién prensado • 290 ml', price: '$3.500' },
+            { name: 'Duo Naranja', desc: 'Jugo de naranja y zanahoria o plátano o piña o mango • 290 ml', price: '$3.800' },
+            { name: 'Detox Verde', desc: 'Jugo de manzana, apio, limón y jengibre • 290 ml', price: '$4.200' },
+            { name: 'Smoothies', desc: 'Batido de leche y fruta a elección • 290 ml', price: '$3.500' },
+            { name: 'Milkshakes', desc: 'Batido de leche, helado y fruta a elección • 290 ml', price: '$4.000' }
+        ]
+    },
+    {
+        category: '🥤 Otros',
+        items: [
+            { name: 'Kombucha', desc: 'Naranja jengibre / Manzana zanahoria / Frutilla menta • 355 ml', price: '$3.000' },
+            { name: 'Ginger Beer Salvaje', desc: '¡NUEVO! 330 ml', price: '$3.000' },
+            { name: 'Ginger Beer Malalcura', desc: '¡NUEVO! 330 ml', price: '$2.500' },
+            { name: 'Coca Cola', desc: 'Original / Zero • 350 ml', price: '$2.000' },
+            { name: 'Schweppes', desc: 'Tónica / Ginger Ale • 310 ml', price: '$1.800' },
+            { name: 'Mineral', desc: 'Con gas / Sin gas • 330 ml', price: '$1.600' }
+        ]
+    }
+];
+
+let menuSelection = { drink: null, food: null };
+let menuInitialized = false;
+
+function initMenuModal() {
+    if (menuInitialized) return;
+    menuInitialized = true;
+
+    // Carousel de carta
+    const cartaPages = document.querySelectorAll('.carta-page');
+    const cartaPrev = document.getElementById('carta-prev');
+    const cartaNext = document.getElementById('carta-next');
+    const cartaIndicator = document.getElementById('carta-indicator');
+    let currentPage = 0;
+
+    function showCartaPage(idx) {
+        cartaPages.forEach(p => p.classList.remove('visible'));
+        cartaPages[idx].classList.add('visible');
+        cartaIndicator.textContent = `${idx + 1} / ${cartaPages.length}`;
+    }
+
+    showCartaPage(0);
+
+    cartaPrev.addEventListener('click', () => {
+        currentPage = (currentPage - 1 + cartaPages.length) % cartaPages.length;
+        showCartaPage(currentPage);
+    });
+
+    cartaNext.addEventListener('click', () => {
+        currentPage = (currentPage + 1) % cartaPages.length;
+        showCartaPage(currentPage);
+    });
+
+    // Tabs
+    const menuTabs = document.querySelectorAll('.menu-tab');
+    const tabCarta = document.getElementById('tab-carta');
+    const tabInteractivo = document.getElementById('tab-interactivo');
+
+    menuTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            menuTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            if (tab.dataset.tab === 'carta') {
+                tabCarta.classList.add('active');
+                tabInteractivo.classList.remove('active');
+            } else {
+                tabCarta.classList.remove('active');
+                tabInteractivo.classList.add('active');
+            }
+        });
+    });
+
+    // Render menú interactivo
+    renderInteractiveMenu();
+}
+
+function renderInteractiveMenu() {
+    const container = document.getElementById('menu-interactive-container');
+    container.innerHTML = '';
+
+    // Drink categories (first 3: café, té, bebidas frías, jugos, otros)
+    const drinkCategories = ['☕ Café', '🍵 Té & Chocolate', '🧊 Bebidas Frías', '🧃 Jugos', '🥤 Otros'];
+    const foodCategories = ['🥪 Salados', '🍰 Dulces'];
+
+    MENU_DATA.forEach(cat => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'menu-category';
+
+        const isDrinkCategory = drinkCategories.includes(cat.category);
+        const isFoodCategory = foodCategories.includes(cat.category);
+        const selectionType = isDrinkCategory ? 'drink' : 'food';
+
+        catDiv.innerHTML = `<div class="menu-category-title">${cat.category}</div>`;
+
+        cat.items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'menu-item-btn';
+            btn.innerHTML = `
+                <div class="menu-item-info">
+                    <span class="menu-item-name">${item.name}</span>
+                    ${item.desc ? `<span class="menu-item-desc">${item.desc}</span>` : ''}
+                </div>
+                <span class="menu-item-price">${item.price}</span>
+            `;
+
+            btn.addEventListener('click', () => {
+                // Toggle selection
+                if (btn.classList.contains('selected')) {
+                    btn.classList.remove('selected');
+                    menuSelection[selectionType] = null;
+                } else {
+                    // Deselect others in same type
+                    const allBtns = container.querySelectorAll('.menu-item-btn');
+                    allBtns.forEach(b => {
+                        const bCat = b.closest('.menu-category').querySelector('.menu-category-title').textContent;
+                        const bType = drinkCategories.includes(bCat) ? 'drink' : 'food';
+                        if (bType === selectionType) {
+                            b.classList.remove('selected');
+                        }
+                    });
+                    btn.classList.add('selected');
+                    menuSelection[selectionType] = item.name;
+                }
+                updateSelectionSummary();
+            });
+
+            catDiv.appendChild(btn);
+        });
+
+        container.appendChild(catDiv);
+    });
+}
+
+function updateSelectionSummary() {
+    const summary = document.getElementById('menu-selection-summary');
+    const itemsDiv = document.getElementById('menu-selection-items');
+
+    if (!menuSelection.drink && !menuSelection.food) {
+        summary.style.display = 'none';
+        return;
+    }
+
+    summary.style.display = 'flex';
+    let html = '';
+
+    if (menuSelection.drink) {
+        html += `<span class="selection-item-tag">☕ ${menuSelection.drink} <span class="remove-selection" data-type="drink">✕</span></span>`;
+    }
+    if (menuSelection.food) {
+        html += `<span class="selection-item-tag">🍽️ ${menuSelection.food} <span class="remove-selection" data-type="food">✕</span></span>`;
+    }
+
+    itemsDiv.innerHTML = html;
+
+    // Remove buttons
+    itemsDiv.querySelectorAll('.remove-selection').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const type = btn.dataset.type;
+            menuSelection[type] = null;
+
+            // Deselect in menu
+            const container = document.getElementById('menu-interactive-container');
+            const drinkCategories = ['☕ Café', '🍵 Té & Chocolate', '🧊 Bebidas Frías', '🧃 Jugos', '🥤 Otros'];
+            container.querySelectorAll('.menu-item-btn.selected').forEach(b => {
+                const bCat = b.closest('.menu-category').querySelector('.menu-category-title').textContent;
+                const bType = drinkCategories.includes(bCat) ? 'drink' : 'food';
+                if (bType === type) b.classList.remove('selected');
+            });
+
+            updateSelectionSummary();
+        });
+    });
+
+    // Save button
+    const btnSave = document.getElementById('btn-save-menu-selection');
+    btnSave.onclick = () => {
+        if (!currentCustomerId) return;
+
+        const updatedHabitual = {
+            drink: menuSelection.drink || (currentCustomerData?.favoriteCoffee?.drink || 'Flat White'),
+            shot: currentCustomerData?.favoriteCoffee?.shot || 'Sin shot',
+            dessert: menuSelection.food || (currentCustomerData?.favoriteCoffee?.dessert || 'Sin postre ni sándwich'),
+            notes: currentCustomerData?.favoriteCoffee?.notes || ''
+        };
+
+        // Update habitual form selects if the item exists as an option
+        if (menuSelection.drink) {
+            const drinkSelect = document.getElementById('habitual-drink');
+            const matchOption = Array.from(drinkSelect.options).find(o => o.value === menuSelection.drink);
+            if (matchOption) {
+                drinkSelect.value = menuSelection.drink;
+            } else {
+                // Add the item as a new option
+                const newOpt = document.createElement('option');
+                newOpt.value = menuSelection.drink;
+                newOpt.textContent = menuSelection.drink;
+                drinkSelect.appendChild(newOpt);
+                drinkSelect.value = menuSelection.drink;
+            }
+            updatedHabitual.drink = menuSelection.drink;
+        }
+
+        if (menuSelection.food) {
+            const dessertSelect = document.getElementById('habitual-dessert');
+            const matchOption = Array.from(dessertSelect.options).find(o => o.value === menuSelection.food);
+            if (matchOption) {
+                dessertSelect.value = menuSelection.food;
+            } else {
+                const newOpt = document.createElement('option');
+                newOpt.value = menuSelection.food;
+                newOpt.textContent = menuSelection.food;
+                dessertSelect.appendChild(newOpt);
+                dessertSelect.value = menuSelection.food;
+            }
+            updatedHabitual.dessert = menuSelection.food;
+        }
+
+        db.ref(`customers/${currentCustomerId}/favoriteCoffee`).set(updatedHabitual)
+            .then(() => {
+                closeModal(document.getElementById('modal-menu'));
+                showToast('☀️ Pedido habitual actualizado', 'Tu selección del menú se guardó como favorito.', '✅');
+            })
+            .catch((err) => {
+                console.error('Error guardando desde menú:', err);
+                alert('No se pudo guardar. Intenta nuevamente.');
+            });
+    };
 }

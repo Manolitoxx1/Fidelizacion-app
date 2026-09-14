@@ -84,8 +84,7 @@
                     </div>
                     <div class="habitual-drink-name" id="habitual-drink-display">Flat White</div>
                     <div class="habitual-specs" id="habitual-specs-display">
-                        <span class="habitual-spec-tag">Leche de Avena</span>
-                        <span class="habitual-spec-tag">Sin azúcar</span>
+                        <span class="habitual-spec-tag">Solo café</span>
                     </div>
                     <span class="habitual-hint">Muestra este código al barista</span>
                 </div>
@@ -104,6 +103,16 @@
             </div>
 
         </section>
+
+        <!-- BOTÓN VER MENÚ -->
+        <button type="button" class="menu-banner-btn" id="btn-open-menu-modal">
+            <span class="menu-banner-icon">📖</span>
+            <div class="menu-banner-text">
+                <h4>Ver Nuestra Carta</h4>
+                <p>Explora el menú completo y elige tu favorito</p>
+            </div>
+            <span class="menu-banner-arrow">→</span>
+        </button>
 
         <!-- ACCIONES RÁPIDAS: REFERIDOS Y PROXIMIDAD -->
         <section class="action-grid">
@@ -161,23 +170,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="habitual-milk">Tipo de Leche / Base</label>
-                    <select id="habitual-milk" class="form-select">
-                        <option value="Leche de Avena">Leche de Avena</option>
-                        <option value="Leche Entera">Leche Entera</option>
-                        <option value="Leche Descremada">Leche Descremada</option>
-                        <option value="Leche de Almendras">Leche de Almendras</option>
-                        <option value="Sin Leche (Solo Café)">Sin Leche (Solo Café)</option>
+                    <label for="habitual-shot">Shot extra</label>
+                    <select id="habitual-shot" class="form-select">
+                        <option value="Sin shot">Sin shot</option>
+                        <option value="Shot de Caramelo">Shot de Caramelo</option>
+                        <option value="Shot de Vainilla">Shot de Vainilla</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="habitual-sweetener">Endulzante</label>
-                    <select id="habitual-sweetener" class="form-select">
-                        <option value="Sin azúcar">Sin azúcar</option>
-                        <option value="Azúcar rubia">Azúcar rubia</option>
-                        <option value="Stevia / Gotas">Stevia / Gotas</option>
-                        <option value="Miel">Miel</option>
+                    <label for="habitual-dessert">Postre o Sándwich</label>
+                    <select id="habitual-dessert" class="form-select">
+                        <option value="Sin postre ni sándwich">Sin postre ni sándwich</option>
+                        <option value="Croissant">Croissant</option>
+                        <option value="Galleta artesanal">Galleta artesanal</option>
+                        <option value="Brownie">Brownie</option>
+                        <option value="Cheesecake">Cheesecake</option>
+                        <option value="Muffin">Muffin</option>
+                        <option value="Sándwich Jamón y Queso">Sándwich Jamón y Queso</option>
+                        <option value="Sándwich Pollo">Sándwich Pollo</option>
+                        <option value="Tostado Mixto">Tostado Mixto</option>
                     </select>
                 </div>
 
@@ -261,6 +273,57 @@
             <p id="toast-desc">Pasa por tu favorito y suma tu sello de hoy.</p>
         </div>
         <button type="button" class="toast-close-btn" id="toast-close-btn">✕</button>
+    </div>
+
+    <!-- ==========================================================
+         MODAL: MENÚ / CARTA COMPLETA
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-menu">
+        <div class="modal-sheet modal-sheet-fullscreen">
+            <div class="modal-header">
+                <h3>📖 Nuestra Carta</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-menu-modal">✕</button>
+            </div>
+
+            <!-- Tabs de vista: Carta / Menú interactivo -->
+            <div class="menu-tabs">
+                <button type="button" class="menu-tab active" data-tab="carta">📸 Carta</button>
+                <button type="button" class="menu-tab" data-tab="interactivo">🛒 Elegir Pedido</button>
+            </div>
+
+            <!-- TAB: Carta con imágenes -->
+            <div class="menu-tab-content active" id="tab-carta">
+                <div class="carta-carousel">
+                    <div class="carta-pages" id="carta-pages">
+                        <img src="carta1.jpg" alt="Carta página 1 - Café" class="carta-page" loading="lazy">
+                        <img src="carta2.jpg" alt="Carta página 2 - Té y Bebidas Frías" class="carta-page" loading="lazy">
+                        <img src="carta3.jpg" alt="Carta página 3 - Salados" class="carta-page" loading="lazy">
+                        <img src="carta4.jpg" alt="Carta página 4 - Dulces y Jugos" class="carta-page" loading="lazy">
+                        <img src="carta5.jpg" alt="Carta página 5 - Otros y Promociones" class="carta-page" loading="lazy">
+                    </div>
+                    <div class="carta-nav">
+                        <button type="button" class="carta-nav-btn" id="carta-prev">‹</button>
+                        <span class="carta-page-indicator" id="carta-indicator">1 / 5</span>
+                        <button type="button" class="carta-nav-btn" id="carta-next">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Menú interactivo -->
+            <div class="menu-tab-content" id="tab-interactivo">
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Toca un ítem para agregarlo a tu pedido habitual.</p>
+                <div class="menu-interactive" id="menu-interactive-container">
+                    <!-- Se genera dinámicamente -->
+                </div>
+                <div class="menu-selection-summary" id="menu-selection-summary" style="display:none;">
+                    <h4>🛒 Tu selección:</h4>
+                    <div id="menu-selection-items"></div>
+                    <button type="button" class="btn-primary-action" id="btn-save-menu-selection">
+                        Guardar como mi Pedido Habitual
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Lógica de la aplicación -->
