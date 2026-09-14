@@ -509,8 +509,10 @@ h1, h2, h3, h4, .brand-title {
 .stamp-slot.active .stamp-icon {
   opacity: 1;
   filter: none;
-  width: 52px;
-  height: 52px;
+  width: 55px;
+  height: 55px;
+  position: absolute;
+  z-index: 10;
   animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
