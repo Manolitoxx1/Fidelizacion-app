@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Buen Día Café - Tu Tarjeta de Fidelización</title>
+    <meta name="description" content="Tu tarjeta digital de fidelización en Buen Día Café. Acumula sellos, sube de nivel y canjea premios exclusivos.">
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Configuración PWA -->
+    <meta name="theme-color" content="#1A1A1A">
+    <link rel="apple-touch-icon" href="icon_yellow.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Librería QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+    <main class="app-container">
+
+        <!-- BARRA EN VIVO: ESTADO DEL CAFÉ Y GRANO DE LA SEMANA -->
+        <header class="live-status-bar" id="live-status-bar">
+            <div class="live-status-top">
+                <div class="brand-badge">
+                    <img src="logo.png" alt="Buen día Café" class="brand-logo-img">
+                </div>
+                <div class="status-right">
+                    <div class="open-status-pill" id="cafe-open-pill">
+                        <span class="pulse-dot"></span>
+                        <span id="cafe-status-text">Abierto ahora</span>
+                    </div>
+                    <div class="bean-of-week">
+                        <span class="bean-text" id="bean-of-week-text">
+                            <strong>Colombia Huila</strong><br>Caramelo y Frutos Rojos
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CAFÉ DE LA SEMANA (Dinámico) -->
+        <div id="cafe-semana-container" style="display: none; background: #fef3c7; border: 1px solid #fde68a; border-radius: var(--radius-lg); padding: 1rem; margin-top: 0; margin-bottom: 0; text-align: center;">
+            <div style="font-weight: 700; color: #b45309; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">✨ Destacado de la Semana</div>
+            <div id="cafe-semana-text" style="font-weight: 600; color: var(--text-main); font-size: 1.15rem;"></div>
+        </div>
+
+        <!-- BANNER DE CUMPLEAÑOS (SE ACTIVA EN SU SEMANA) -->
+        <section class="birthday-banner hidden" id="birthday-banner">
+            <div class="birthday-icon">🎂</div>
+            <div class="birthday-content">
+                <h4>¡Feliz Semana de Cumpleaños!</h4>
+                <p>Tu café de cortesía te espera en la barra. ¡Celébralo con nosotros!</p>
+            </div>
+        </section>
+
+        <!-- PANTALLA PRINCIPAL: TARJETA DE FIDELIZACIÓN -->
+        <section class="loyalty-card" id="loyalty-card-view">
+            <!-- Cabecera de la Tarjeta -->
+            <div class="card-top">
+                <div class="member-greeting">
+                    <h2 class="member-name" id="card-member-name">¡Hola, Amigo!</h2>
+                </div>
+                <div class="member-badge" id="card-member-badge">
+                    <span class="star-empty">☆</span>
+                    <span class="star-empty">☆</span>
+                    <span class="star-empty">☆</span>
+                </div>
+            </div>
+
+            <!-- QR y Mi Café Habitual -->
+            <div class="qr-and-habitual-section">
+                <div class="qr-box">
+                    <div id="qr-code"></div>
+                </div>
+
+                <div class="habitual-preview-box">
+                    <div class="habitual-header">
+                        <span class="habitual-title">☀️ Mi Habitual</span>
+                        <button type="button" class="btn-edit-habitual" id="btn-open-habitual-modal">Editar</button>
+                    </div>
+                    <div class="habitual-drink-name" id="habitual-drink-display">Flat White</div>
+                    <div class="habitual-specs" id="habitual-specs-display">
+                        <span class="habitual-spec-tag">Solo café</span>
+                    </div>
+                    <span class="habitual-hint">Muestra este código al barista</span>
+                </div>
+            </div>
+
+            <!-- Grilla de 10 Sellos -->
+            <div class="stamps-section">
+                <div class="stamps-progress-header">
+                    <span class="progress-label" id="stamps-progress-message">Llevas 0 de 10 sellos</span>
+                    <span class="progress-count" id="stamps-count-label">0 / 10</span>
+                </div>
+
+                <div class="stamps-grid" id="stamps-grid-container">
+                    <!-- Los 10 sellos se generarán dinámicamente con app.js -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- BOTÓN VER MENÚ -->
+        <button type="button" class="menu-banner-btn" id="btn-open-menu-modal">
+            <span class="menu-banner-icon">📖</span>
+            <div class="menu-banner-text">
+                <h4>Ver Nuestra Carta</h4>
+                <p>Explora el menú completo y elige tu favorito</p>
+            </div>
+            <span class="menu-banner-arrow">→</span>
+        </button>
+        
+        <!-- ACCIONES RÁPIDAS: REFERIDOS Y PROXIMIDAD -->
+        <section class="action-grid">
+            <button type="button" class="action-card-btn" id="btn-open-referral-modal">
+                <div class="action-icon-circle gold">🤝</div>
+                <div class="action-text-content">
+                    <h4>Invita a un amigo</h4>
+                    <p>Ambos ganan 1 sello</p>
+                </div>
+            </button>
+
+            <button type="button" class="action-card-btn" id="btn-toggle-proximity">
+                <div class="action-icon-circle emerald" id="proximity-icon">📍</div>
+                <div class="action-text-content">
+                    <h4 id="proximity-title">Aviso de cercanía</h4>
+                    <p id="proximity-status">Toca para activar</p>
+                </div>
+            </button>
+        </section>
+
+        <!-- FOOTER / OPCIONES DE CUENTA -->
+        <footer class="app-footer">
+            <p>Buen Día Café • Pasión por el buen café</p>
+            <p><a id="btn-switch-account">Cambiar o crear otra cuenta</a></p>
+        </footer>
+
+    </main>
+
+    <!-- ==========================================================
+         MODAL: EDITAR "MI CAFÉ HABITUAL"
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-habitual">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3>☕ Tu Café Habitual</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-habitual-modal">✕</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted);">
+                Configura tu preparación favorita para que el barista la prepare de inmediato cuando escanee tu código.
+            </p>
+
+            <form id="form-habitual" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-group">
+                    <label for="habitual-drink">Tipo de Bebida</label>
+                    <select id="habitual-drink" class="form-select">
+                        <option value="Flat White">Flat White</option>
+                        <option value="Capuccino">Capuccino</option>
+                        <option value="Latte">Latte</option>
+                        <option value="Americano">Americano</option>
+                        <option value="Espresso Doble">Espresso Doble</option>
+                        <option value="Cold Brew">Cold Brew</option>
+                        <option value="Mocha">Mocha</option>
+                        <option value="Filtrado V60">Filtrado V60</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="habitual-shot">Shot extra</label>
+                    <select id="habitual-shot" class="form-select">
+                        <option value="Sin shot">Sin shot</option>
+                        <option value="Shot de Caramelo">Shot de Caramelo</option>
+                        <option value="Shot de Vainilla">Shot de Vainilla</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="habitual-dessert">Postre o Sándwich</label>
+                    <select id="habitual-dessert" class="form-select">
+                        <option value="Sin postre ni sándwich">Sin postre ni sándwich</option>
+                        <option value="Croissant">Croissant</option>
+                        <option value="Galleta artesanal">Galleta artesanal</option>
+                        <option value="Brownie">Brownie</option>
+                        <option value="Cheesecake">Cheesecake</option>
+                        <option value="Muffin">Muffin</option>
+                        <option value="Sándwich Jamón y Queso">Sándwich Jamón y Queso</option>
+                        <option value="Sándwich Pollo">Sándwich Pollo</option>
+                        <option value="Tostado Mixto">Tostado Mixto</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="habitual-notes">Nota especial (Opcional)</label>
+                    <input type="text" id="habitual-notes" class="form-input" placeholder="Ej. Muy caliente, en taza de cerámica, etc.">
+                </div>
+
+                <button type="submit" class="btn-primary-action">Guardar mi Café Habitual</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+         MODAL: INVITA A UN AMIGO (REFERIDOS)
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-referral">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3>🤝 Invita a un Amigo</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-referral-modal">✕</button>
+            </div>
+            
+            <div class="referral-share-box">
+                <p style="font-size: 13px; color: #000;">Tu código de socio amigo:</p>
+                <div class="referral-code-badge" id="referral-code-display">BUENDIA-SOCIO</div>
+                <p class="referral-rules">
+                    Comparte tu enlace por WhatsApp. Cuando tu amigo se registre y tome su primer café, ¡ambos reciben 1 sello de regalo!
+                </p>
+            </div>
+
+            <a href="#" target="_blank" class="btn-whatsapp-share" id="btn-share-whatsapp">
+                <span>💬</span> Compartir por WhatsApp
+            </a>
+
+            <button type="button" class="btn-primary-action" id="btn-copy-referral-link">
+                <span>📋</span> Copiar enlace de invitación
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+         MODAL: REGISTRO / INICIAR SESIÓN (PRIMERA VEZ)
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-register">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3>Bienvenido a Buen Día Café</h3>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted);">
+                Ingresa tu nombre y teléfono para activar tu tarjeta y comenzar a sumar sellos hoy mismo.
+            </p>
+
+            <form id="form-register" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-group">
+                    <label for="reg-name">Nombre y Apellido</label>
+                    <input type="text" id="reg-name" class="form-input" placeholder="Ej. Camila Silva" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-phone">Número de Teléfono / WhatsApp</label>
+                    <input type="tel" id="reg-phone" class="form-input" placeholder="Ej. +56 9 1234 5678" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-birthday">Fecha de Cumpleaños (Opcional)</label>
+                    <input type="date" id="reg-birthday" class="form-input">
+                    <small style="font-size: 11px; color: var(--primary);">🎂 ¡Te regalaremos un café en tu semana de cumpleaños!</small>
+                </div>
+
+                <button type="submit" class="btn-primary-action">Comenzar y Activar Tarjeta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST IN-APP PARA PROXIMIDAD Y REENGANCHE -->
+    <div class="app-toast" id="app-toast">
+        <div class="toast-icon" id="toast-icon">☕</div>
+        <div class="toast-body">
+            <h5 id="toast-title">¡Estás cerca de Buen Día Café!</h5>
+            <p id="toast-desc">Pasa por tu favorito y suma tu sello de hoy.</p>
+        </div>
+        <button type="button" class="toast-close-btn" id="toast-close-btn">✕</button>
+    </div>
+
+    <!-- ==========================================================
+         MODAL: MENÚ / CARTA COMPLETA
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-menu">
+        <div class="modal-sheet modal-sheet-fullscreen">
+            <div class="modal-header">
+                <h3>📖 Nuestra Carta</h3>
+                <button type="button" class="btn-close-modal" id="btn-close-menu-modal">✕</button>
+            </div>
+
+            <!-- Tabs de vista: Carta / Menú interactivo -->
+            <div class="menu-tabs">
+                <button type="button" class="menu-tab active" data-tab="carta">📸 Carta</button>
+                <button type="button" class="menu-tab" data-tab="interactivo">🛒 Elegir Pedido</button>
+            </div>
+
+            <!-- TAB: Carta con imágenes -->
+            <div class="menu-tab-content active" id="tab-carta">
+                <div class="carta-carousel">
+                    <div class="carta-pages" id="carta-pages">
+                        <img src="carta1.jpg" alt="Carta página 1 - Café" class="carta-page" loading="lazy">
+                        <img src="carta2.jpg" alt="Carta página 2 - Té y Bebidas Frías" class="carta-page" loading="lazy">
+                        <img src="carta3.jpg" alt="Carta página 3 - Salados" class="carta-page" loading="lazy">
+                        <img src="carta4.jpg" alt="Carta página 4 - Dulces y Jugos" class="carta-page" loading="lazy">
+                        <img src="carta5.jpg" alt="Carta página 5 - Otros y Promociones" class="carta-page" loading="lazy">
+                    </div>
+                    <div class="carta-nav">
+                        <button type="button" class="carta-nav-btn" id="carta-prev">‹</button>
+                        <span class="carta-page-indicator" id="carta-indicator">1 / 5</span>
+                        <button type="button" class="carta-nav-btn" id="carta-next">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Menú interactivo -->
+            <div class="menu-tab-content" id="tab-interactivo">
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Toca un ítem para agregarlo a tu pedido habitual.</p>
+                <div class="menu-interactive" id="menu-interactive-container">
+                    <!-- Se genera dinámicamente -->
+                </div>
+                <div class="menu-selection-summary" id="menu-selection-summary" style="display:none;">
+                    <h4>🛒 Tu selección:</h4>
+                    <div id="menu-selection-items"></div>
+                    <button type="button" class="btn-primary-action" id="btn-save-menu-selection">
+                        Guardar como mi Pedido Habitual
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================
+         MODAL: INSTALACIÓN EN IOS (SAFARI)
+         ========================================================== -->
+    <div class="modal-overlay" id="modal-install-ios">
+        <div class="modal-sheet" style="text-align: center; max-height: 85vh;">
+            <div class="modal-header">
+                <button type="button" class="btn-close-modal" id="btn-close-install-ios">✖</button>
+            </div>
+            <div style="padding: 1rem;">
+                <img src="icon_yellow.png" alt="Logo" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Instala Buen Día Café</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    Lleva tu tarjeta de sellos siempre contigo, sin necesidad de buscar el link.
+                </p>
+                <div style="text-align: left; background: var(--surface-bg); padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                    <ol style="margin-left: 1.25rem; font-size: 0.9rem; color: var(--text-main); line-height: 1.6;">
+                        <li>Toca el botón <strong>Compartir</strong> <svg style="display:inline-block; vertical-align:middle; width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en la barra inferior de Safari.</li>
+                        <li>Desliza hacia abajo y selecciona <strong>Agregar a inicio</strong> <svg style="display:inline-block; vertical-align:middle; width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>.</li>
+                        <li>Confirma tocando <strong>Agregar</strong> arriba a la derecha.</li>
+                    </ol>
+                </div>
+                <button type="button" class="btn-primary-action" id="btn-understood-install-ios">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner (Android/Chrome) -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 1rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; align-items: center; justify-content: space-between; gap: 1rem; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+            <img src="icon_yellow.png" style="width: 40px; height: 40px; border-radius: 8px;">
+            <div style="font-size: 0.85rem;">
+                <div style="font-weight: bold; color: var(--text-main);">Instalar App</div>
+                <div style="color: var(--text-muted);">Acceso rápido y fácil</div>
+            </div>
+        </div>
+        <button id="btn-pwa-install" style="background: var(--brand-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;">Instalar</button>
+        <button id="btn-pwa-close" style="background: none; border: none; font-size: 1.2rem; color: var(--text-muted); padding: 0.5rem;">✖</button>
+    </div>
+
+    <!-- Lógica de la aplicación -->
+    <script src="app.js"></script>
+
+</body>
+
+</html>
