@@ -50,6 +50,12 @@
             </div>
         </header>
 
+        <!-- CAFÉ DE LA SEMANA (Dinámico) -->
+        <div id="cafe-semana-container" style="display: none; background: #fef3c7; border: 1px solid #fde68a; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: 0.6rem 1rem; margin-bottom: 1rem; text-align: center;">
+            <div style="font-weight: 700; color: #b45309; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.1rem;">✨ Destacado de la Semana</div>
+            <div id="cafe-semana-text" style="font-weight: 600; color: var(--text-main); font-size: 1rem;"></div>
+        </div>
+
         <!-- BANNER DE CUMPLEAÑOS (SE ACTIVA EN SU SEMANA) -->
         <section class="birthday-banner hidden" id="birthday-banner">
             <div class="birthday-icon">🎂</div>
@@ -116,12 +122,6 @@
             <span class="menu-banner-arrow">→</span>
         </button>
         
-        <!-- CAFÉ DE LA SEMANA (Dinámico) -->
-        <div id="cafe-semana-container" style="display: none; background: #fef3c7; border: 1px solid #fde68a; border-radius: var(--radius-lg); padding: 1rem; margin-top: 1rem; text-align: center;">
-            <div style="font-weight: 700; color: #b45309; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">✨ Destacado de la Semana</div>
-            <div id="cafe-semana-text" style="font-weight: 600; color: var(--text-main); font-size: 1.1rem;"></div>
-        </div>
-
         <!-- ACCIONES RÁPIDAS: REFERIDOS Y PROXIMIDAD -->
         <section class="action-grid">
             <button type="button" class="action-card-btn" id="btn-open-referral-modal">
