@@ -439,14 +439,12 @@ function renderStampsGrid(stamps, tier) {
             slot.innerHTML = `
                 ${tagHtml}
                 <span class="stamp-icon">${GRANO_VACIO_SVG}</span>
-                ${badgeLabel === '🎁' ? `<span class="stamp-badge-label">${badgeLabel}</span>` : ''}
             `;
         } else {
             // Sello vacío: muestra grano_sol.png en gris (grano de café sol sin letras)
             slot.innerHTML = `
                 ${tagHtml}
                 <span class="stamp-icon">${GRANO_VACIO_SVG}</span>
-                ${badgeLabel === '🎁' ? `<span class="stamp-badge-label">${badgeLabel}</span>` : ''}
             `;
         }
         stampsGridContainer.appendChild(slot);
