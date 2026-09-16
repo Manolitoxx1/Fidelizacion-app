@@ -256,7 +256,7 @@ function updateLiveCafeStatus() {
 
     if (isOpen) {
         cafeOpenPill.classList.remove('closed');
-        cafeStatusText.textContent = `Abierto hasta ${closesAt}`;
+        cafeStatusText.textContent = `Abierto hasta las ${closesAt}`;
     } else {
         cafeOpenPill.classList.add('closed');
         cafeStatusText.textContent = `Cerrado • Abrimos 08:00`;
