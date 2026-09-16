@@ -11,9 +11,9 @@
   "categories": ["food", "lifestyle"],
   "icons": [
     {
-      "src": "./icon.svg",
+      "src": "./sello.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
