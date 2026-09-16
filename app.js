@@ -292,7 +292,7 @@ function renderCustomerUI(data) {
     renderStarsBadge(starsEarned);
 
     // 4. Código QR Dinámico
-    renderQRCode(data.id);
+    renderQRCode(data.id || currentCustomerId);
 
     // 5. "Mi Café Habitual"
     const fav = data.favoriteCoffee || {
@@ -401,7 +401,7 @@ function renderStampsGrid(stamps, tier) {
             tagHtml = `<span class="stamp-reward-tag" title="${prizeDesc}">PREMIO</span>`;
             if (i !== 10) {
                 // If it's a sub-milestone, add a small description
-                tagHtml = `<span class="stamp-reward-tag" style="font-size:0.5rem;" title="${prizeDesc}">${prizeDesc.substring(0, 8)}...</span>`;
+                tagHtml = `<span class="stamp-reward-tag" style="font-size:0.5rem;" title="${prizeDesc}">${String(prizeDesc).substring(0, 8)}...</span>`;
             }
         }
 
