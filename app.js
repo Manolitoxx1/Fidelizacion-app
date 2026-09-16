@@ -183,6 +183,10 @@ window.addEventListener('DOMContentLoaded', () => {
     db.ref('settings/appConfig').on('value', (snap) => {
         window.APP_CONFIG = snap.val() || { storeStatus: 'auto', tiers: {} };
         updateLiveCafeStatus();
+        // Re-render stamps if we already have customer data
+        if (currentCustomerData) {
+            renderStampsGrid(currentCustomerData.stamps || 0, currentCustomerData.tier || 1);
+        }
     });
 });
 
@@ -391,13 +395,13 @@ function renderStampsGrid(stamps, tier) {
         let tagHtml = '';
         let badgeLabel = `${i}`;
         
-        let hasPrize = tierConfig[i] !== undefined;
+        let prizeDesc = tierConfig[i];
+        let hasPrize = prizeDesc !== undefined && prizeDesc !== null && prizeDesc !== '';
 
         if (hasPrize) {
             milestoneClass = ' milestone-' + i;
             if (i === 10) milestoneClass = ' milestone-10'; // Keep milestone-10 class for 10th stamp special styling
             badgeLabel = '🎁';
-            let prizeDesc = tierConfig[i];
             tagHtml = `<span class="stamp-reward-tag" title="${prizeDesc}">PREMIO</span>`;
             if (i !== 10) {
                 // If it's a sub-milestone, add a small description
