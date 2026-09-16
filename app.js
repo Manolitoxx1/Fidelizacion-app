@@ -178,6 +178,12 @@ window.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     checkProximityPreference();
     initServiceWorker();
+    
+    // Sync config from POS
+    db.ref('settings/appConfig').on('value', (snap) => {
+        window.APP_CONFIG = snap.val() || { storeStatus: 'auto', tiers: {} };
+        updateLiveCafeStatus();
+    });
 });
 
 // ==========================================================
@@ -200,6 +206,25 @@ function updateLiveCafeStatus() {
     } else if (day === 6) {
         isOpen = timeNum >= 9.0 && timeNum < 19.0;
         closesAt = "19:00";
+    }
+
+    // Apply manual override from POS settings
+    if (window.APP_CONFIG) {
+        if (window.APP_CONFIG.storeStatus === 'open') isOpen = true;
+        else if (window.APP_CONFIG.storeStatus === 'closed') isOpen = false;
+        
+        const cafeSemanaText = window.APP_CONFIG.cafeSemana;
+        const cafeSemanaContainer = document.getElementById('cafe-semana-container');
+        const cafeSemanaTextEl = document.getElementById('cafe-semana-text');
+        
+        if (cafeSemanaContainer && cafeSemanaTextEl) {
+            if (cafeSemanaText) {
+                cafeSemanaTextEl.textContent = cafeSemanaText;
+                cafeSemanaContainer.style.display = 'block';
+            } else {
+                cafeSemanaContainer.style.display = 'none';
+            }
+        }
     }
 
     if (isOpen) {
@@ -300,7 +325,7 @@ function renderCustomerUI(data) {
     inputHabitualNotes.value = fav.notes || "";
 
     // 6. Grilla de 10 Sellos con Grano-Sol
-    renderStampsGrid(stamps);
+    renderStampsGrid(stamps, tier);
 
     // 7. Mensajes de progreso según tier
     renderProgressMessages(stamps, tier);
@@ -347,8 +372,17 @@ function renderQRCode(text) {
 // ==========================================================
 // RENDERIZAR GRILLA DE 10 SELLOS
 // ==========================================================
-function renderStampsGrid(stamps) {
+function renderStampsGrid(stamps, tier) {
     stampsGridContainer.innerHTML = '';
+    
+    // Get tier configuration from POS appConfig
+    let tierConfig = {};
+    if (window.APP_CONFIG && window.APP_CONFIG.tiers && window.APP_CONFIG.tiers[tier]) {
+        tierConfig = window.APP_CONFIG.tiers[tier];
+    } else {
+        // Default config if none set
+        tierConfig = { 10: "Premio" };
+    }
 
     for (let i = 1; i <= 10; i++) {
         const slot = document.createElement('div');
@@ -356,11 +390,19 @@ function renderStampsGrid(stamps) {
         let milestoneClass = '';
         let tagHtml = '';
         let badgeLabel = `${i}`;
+        
+        let hasPrize = tierConfig[i] !== undefined;
 
-        if (i === 10) {
-            milestoneClass = ' milestone-10';
+        if (hasPrize) {
+            milestoneClass = ' milestone-' + i;
+            if (i === 10) milestoneClass = ' milestone-10'; // Keep milestone-10 class for 10th stamp special styling
             badgeLabel = '🎁';
-            tagHtml = '<span class="stamp-reward-tag">PREMIO</span>';
+            let prizeDesc = tierConfig[i];
+            tagHtml = `<span class="stamp-reward-tag" title="${prizeDesc}">PREMIO</span>`;
+            if (i !== 10) {
+                // If it's a sub-milestone, add a small description
+                tagHtml = `<span class="stamp-reward-tag" style="font-size:0.5rem;" title="${prizeDesc}">${prizeDesc.substring(0, 8)}...</span>`;
+            }
         }
 
         slot.className = `stamp-slot${isActive ? ' active' : ''}${milestoneClass}`;
@@ -1124,4 +1166,80 @@ function updateSelectionSummary() {
                 alert('No se pudo guardar. Intenta nuevamente.');
             });
     };
+
+// ==========================================================
+// LÓGICA DE INSTALACIÓN (PWA & SAFARI)
+// ==========================================================
+
+let deferredPrompt;
+const pwaBanner = document.getElementById('pwa-install-banner');
+const btnPwaInstall = document.getElementById('btn-pwa-install');
+const btnPwaClose = document.getElementById('btn-pwa-close');
+
+const modalInstallIos = document.getElementById('modal-install-ios');
+const btnCloseInstallIos = document.getElementById('btn-close-install-ios');
+const btnUnderstoodInstallIos = document.getElementById('btn-understood-install-ios');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Show the custom install banner if not dismissed before
+    if (!localStorage.getItem('buendia_pwa_dismissed') && pwaBanner) {
+        pwaBanner.style.display = 'flex';
+    }
+});
+
+if (btnPwaInstall) {
+    btnPwaInstall.addEventListener('click', () => {
+        pwaBanner.style.display = 'none';
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        }
+    });
+}
+
+if (btnPwaClose) {
+    btnPwaClose.addEventListener('click', () => {
+        pwaBanner.style.display = 'none';
+        localStorage.setItem('buendia_pwa_dismissed', 'true');
+    });
+}
+
+// Lógica para Safari (iOS)
+const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+};
+
+// isInStandaloneMode detecta si ya se está ejecutando como app instalada (PWA)
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+if (isIos() && !isInStandaloneMode()) {
+    if (!localStorage.getItem('buendia_ios_install_dismissed')) {
+        // Mostrar el modal después de 2 segundos de cargar la app
+        setTimeout(() => {
+            if (modalInstallIos) openModal(modalInstallIos);
+        }, 2000);
+    }
+}
+
+if (btnCloseInstallIos) {
+    btnCloseInstallIos.addEventListener('click', () => {
+        closeModal(modalInstallIos);
+        localStorage.setItem('buendia_ios_install_dismissed', 'true');
+    });
+}
+if (btnUnderstoodInstallIos) {
+    btnUnderstoodInstallIos.addEventListener('click', () => {
+        closeModal(modalInstallIos);
+        localStorage.setItem('buendia_ios_install_dismissed', 'true');
+    });
 }
