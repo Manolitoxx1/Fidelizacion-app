@@ -230,16 +230,27 @@ function updateLiveCafeStatus() {
             }
         }
 
-        const granoSemanaText = window.APP_CONFIG.granoSemana;
+        const granoSemanaObj = window.APP_CONFIG.granoSemana;
         const beanOfWeekEl = document.getElementById('bean-of-week-text');
-        if (beanOfWeekEl && granoSemanaText) {
-            // Keep the strong formatting by replacing just the text part
-            // Or replace it entirely if they provide a full string.
-            // A common format is "Nombre<br>Descripción". We'll just replace innerHTML safely or textContent if no br.
-            // Let's use innerHTML so they can put <br> or <strong> if they want, but simpler is to just replace the text content
-            // However, the original had <strong>Colombia Huila</strong><br>Caramelo y Frutos Rojos
-            // If they type "Colombia Huila", we can just put it.
-            beanOfWeekEl.innerHTML = `<strong>${granoSemanaText}</strong>`;
+        if (beanOfWeekEl && granoSemanaObj) {
+            let nombre = '';
+            let desc = '';
+            
+            // Handle both legacy string format and new object format
+            if (typeof granoSemanaObj === 'string') {
+                nombre = granoSemanaObj;
+            } else {
+                nombre = granoSemanaObj.nombre || '';
+                desc = granoSemanaObj.desc || '';
+            }
+            
+            if (nombre) {
+                let html = `<strong>${nombre}</strong>`;
+                if (desc) {
+                    html += `<br>${desc}`;
+                }
+                beanOfWeekEl.innerHTML = html;
+            }
         }
     }
 
