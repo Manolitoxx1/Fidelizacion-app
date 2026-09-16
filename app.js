@@ -1166,6 +1166,7 @@ function updateSelectionSummary() {
                 alert('No se pudo guardar. Intenta nuevamente.');
             });
     };
+}
 
 // ==========================================================
 // LÓGICA DE INSTALACIÓN (PWA & SAFARI)
