@@ -4,378 +4,1961 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Buen Día Café - Tu Tarjeta de Fidelización</title>
-    <meta name="description" content="Tu tarjeta digital de fidelización en Buen Día Café. Acumula sellos, sube de nivel y canjea premios exclusivos.">
-
-    <!-- Tipografía Google Fonts -->
+    <title>Buen Dia Cafe - Sistema de Control</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #047857;
+            --primary-hover: #065f46;
+            --primary-light: #d1fae5;
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --status-free: #10b981;
+            --status-occupied: #dc2626;
+            --status-pending: #3b82f6;
+            --danger: #ef4444;
+            --danger-hover: #b91c1c;
+            --success: #10b981;
+            --success-hover: #059669;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    <!-- Configuración PWA -->
-    <meta name="theme-color" content="#1A1A1A">
-    <link rel="apple-touch-icon" href="icon_yellow.png">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            touch-action: manipulation;
+        }
+
+        .table-card,
+        .menu-item-row,
+        .category-pill,
+        .qty-btn {
+            touch-action: manipulation;
+        }
+
+        input {
+            font-family: inherit;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: .5rem 1rem;
+            font-size: .875rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: var(--success-hover);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-surface-hover);
+        }
+
+        .btn-ghost {
+            color: var(--text-muted);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-main);
+        }
+
+        .btn-icon {
+            padding: .5rem;
+            color: var(--text-muted);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: .875rem;
+            font-weight: 500;
+            margin-bottom: .25rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: .5rem .75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: .875rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-icon {
+            font-size: 1.5rem;
+        }
+
+        .brand-text {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            width: 100%;
+            padding: .75rem 1rem;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .daily-total {
+            background: var(--bg-body);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .daily-label {
+            display: block;
+            font-size: .75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: .05em;
+            margin-bottom: .25rem;
+        }
+
+        .daily-amount {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .view-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .view-subtitle {
+            color: var(--text-muted);
+            margin-top: .25rem;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .table-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .table-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .table-status-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .table-card[data-status="free"] .table-status-indicator {
+            background: var(--status-free);
+        }
+
+        .table-card[data-status="occupied"] .table-status-indicator {
+            background: var(--status-occupied);
+        }
+
+        .table-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-card[data-status="free"] .table-icon {
+            color: var(--status-free);
+            background: #d1fae5;
+        }
+
+        .table-card[data-status="occupied"] .table-icon {
+            color: var(--status-occupied);
+            background: #fef3c7;
+        }
+
+        .table-info {
+            text-align: center;
+        }
+
+        .table-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .table-amount {
+            font-size: .875rem;
+            color: var(--text-muted);
+            margin-top: .25rem;
+        }
+
+        .table-actions {
+            position: absolute;
+            top: .5rem;
+            right: .5rem;
+            display: none;
+            gap: .25rem;
+        }
+
+        .table-card:hover .table-actions {
+            display: flex;
+        }
+
+        .btn-table-edit,
+        .btn-table-delete {
+            color: var(--text-muted);
+            background: #fff;
+            border-radius: 50%;
+            padding: .25rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .btn-table-edit:hover {
+            color: var(--primary);
+        }
+
+        .btn-table-delete:hover {
+            color: var(--danger);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, .4);
+            backdrop-filter: blur(2px);
+            z-index: 40;
+            opacity: 1;
+            transition: opacity .3s;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .order-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 450px;
+            background: var(--bg-surface);
+            box-shadow: -4px 0 15px rgba(0, 0, 0, .1);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            backface-visibility: hidden;
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .order-panel.hidden {
+            transform: translate3d(100%, 0, 0);
+        }
+
+        .order-panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-panel-title {
+            font-size: 1.25rem;
+        }
+
+        .order-panel-status {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .25rem .5rem;
+            border-radius: 1rem;
+            margin-top: .25rem;
+            display: inline-block;
+        }
+
+        .status-badge-free {
+            background: #d1fae5;
+            color: var(--status-free);
+        }
+
+        .status-badge-occupied {
+            background: #fef3c7;
+            color: var(--status-occupied);
+        }
+
+        .order-add-section {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-body);
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: .5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            padding-left: 2.5rem;
+        }
+
+        .order-categories {
+            display: flex;
+            gap: .5rem;
+            overflow-x: auto;
+            padding-bottom: .25rem;
+            margin-bottom: .5rem;
+        }
+
+        .category-pill {
+            white-space: nowrap;
+            padding: .25rem .5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 4px solid transparent;
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+
+        .category-pill:hover {
+            color: var(--text-main);
+        }
+
+        .category-pill.active {
+            color: var(--text-main);
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .order-menu-items {
+            max-height: 120px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .menu-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .75rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .menu-item-row:hover {
+            border-color: var(--primary-light);
+            background: var(--primary-light);
+        }
+
+        .item-row-name {
+            font-weight: 500;
+            font-size: .875rem;
+        }
+
+        .item-row-price {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: .875rem;
+        }
+
+        .order-items-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .order-items-heading {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: .75rem;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 500;
+            font-size: .875rem;
+            margin-bottom: .25rem;
+        }
+
+        .order-item-price {
+            font-size: .75rem;
+            color: var(--text-muted);
+        }
+
+        .order-item-controls {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .qty-btn:hover {
+            background: var(--border);
+        }
+
+        .item-qty {
+            font-weight: 600;
+            font-size: .875rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .item-total {
+            font-weight: 600;
+            width: 70px;
+            text-align: right;
+        }
+
+        .order-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-surface);
+        }
+
+        .order-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .order-actions {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity .2s;
+        }
+
+        .modal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, .5);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            width: 90%;
+            z-index: 101;
+            transform: scale(1);
+            transition: transform .2s;
+        }
+
+        .modal.hidden .modal-content {
+            transform: scale(.95);
+        }
+
+        .modal-sm {
+            max-width: 400px;
+        }
+
+        .modal-md {
+            max-width: 500px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-message {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .menu-categories-bar {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .menu-products-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .product-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .product-category-tag {
+            font-size: .75rem;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: .1rem .5rem;
+            border-radius: 1rem;
+            align-self: flex-start;
+        }
+
+        .product-name {
+            font-weight: 600;
+        }
+
+        .product-price {
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: .5rem;
+            margin-top: .5rem;
+            border-top: 1px solid var(--border);
+            padding-top: .75rem;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .history-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-shrink: 0;
+        }
+
+        .summary-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .summary-title {
+            font-size: .875rem;
+            color: var(--text-muted);
+            margin-bottom: .5rem;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .history-list {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: visible;
+            flex-shrink: 0;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item-info h4 {
+            font-weight: 600;
+            margin-bottom: .25rem;
+        }
+
+        .history-item-date {
+            font-size: .875rem;
+            color: var(--text-muted);
+        }
+
+        .history-item-total {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .history-item-details {
+            font-size: .875rem;
+            color: var(--text-muted);
+            margin-top: .25rem;
+        }
+
+        .print-area {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            body.printing-ticket #print-ticket,
+            body.printing-ticket #print-ticket * {
+                visibility: visible;
+            }
+
+            body.printing-comanda #print-comanda,
+            body.printing-comanda #print-comanda * {
+                visibility: visible;
+            }
+
+            #print-ticket,
+            #print-comanda {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm;
+                margin: 0;
+                padding: 5mm;
+                font-family: monospace;
+                font-size: 14px;
+                font-weight: bold;
+                color: #000;
+                display: block;
+            }
+
+            .ticket-header {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .ticket-brand {
+                font-size: 18px;
+                font-weight: bold;
+                margin: 0 0 5px 0;
+            }
+
+            .ticket-divider {
+                border-top: 1px dashed #000;
+                margin: 5px 0;
+                color: transparent;
+                height: 1px;
+            }
+
+            .ticket-items {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 5px 0;
+            }
+
+            .ticket-th-left,
+            .ticket-td-left {
+                text-align: left;
+            }
+
+            .ticket-th-right,
+            .ticket-td-right {
+                text-align: right;
+            }
+
+            .ticket-td-center {
+                text-align: center;
+            }
+
+            .ticket-items th,
+            .ticket-items td {
+                padding: 2px 0;
+            }
+
+            .ticket-total {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 5px 0;
+            }
+
+            .ticket-footer {
+                text-align: center;
+                margin-top: 10px;
+                font-style: italic;
+            }
+
+            @page {
+                margin: 0;
+            }
+        }
+
+        @media screen and (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                order: -1;
+                padding: 0;
+                flex-shrink: 0;
+            }
+
+            .sidebar-brand {
+                display: none;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                justify-content: space-around;
+                padding: .5rem 0;
+                align-items: center;
+                flex: 1;
+            }
+
+            .nav-btn {
+                flex-direction: column;
+                width: auto;
+                padding: .5rem .75rem;
+                gap: .15rem;
+                font-size: .7rem;
+            }
+
+            .nav-btn.active {
+                background: transparent;
+                color: var(--primary);
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main-content {
+                flex: 1;
+                overflow: hidden;
+            }
+
+            .view {
+                padding: 1rem;
+            }
+
+            .view-title {
+                font-size: 1.25rem;
+            }
+
+            .order-panel {
+                width: 100%;
+            }
+
+            #btn-change-role-mesero {
+                display: inline-flex !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css?v=9">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Librería QR Code -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <meta name="theme-color" content="#047857">
+    <link rel="apple-touch-icon" href="icon.svg">
 </head>
 
 <body>
+    <script>
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            alert('Error JS: ' + msg + '\nLínea: ' + lineNo);
+            return false;
+        };
+    </script>
 
-    <main class="app-container">
-
-        <!-- BARRA EN VIVO: ESTADO DEL CAFÉ Y GRANO DE LA SEMANA -->
-        <header class="live-status-bar" id="live-status-bar">
-            <div class="live-status-top">
-                <div class="brand-badge">
-                    <img src="logo.png" alt="Buen día Café" class="brand-logo-img">
-                </div>
-                <div class="status-right">
-                    <div class="open-status-pill" id="cafe-open-pill">
-                        <span class="pulse-dot"></span>
-                        <span id="cafe-status-text">Abierto ahora</span>
-                    </div>
-                    <div class="bean-of-week">
-                        <span class="bean-text" id="bean-of-week-text">
-                            <strong>Colombia Huila</strong><br>Caramelo y Frutos Rojos
-                        </span>
-                    </div>
-                </div>
+    <div id="role-selection-overlay" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <h2 style="margin-bottom:1.5rem;text-align:center;">Seleccionar Rol</h2>
+            <div style="display:flex;gap:1rem;">
+                <button id="btn-role-mesero" class="btn btn-primary" style="flex:1;padding:2rem 1rem;">Mesero<br><small
+                        style="font-weight:400;opacity:0.8;">Tomar Pedidos</small></button>
+                <button id="btn-role-barista" class="btn btn-primary"
+                    style="flex:1;padding:2rem 1rem;background-color:#10b981;border-color:#10b981;">Preparación<br><small
+                        style="font-weight:400;opacity:0.8;">Comandas (KDS)</small></button>
             </div>
-        </header>
-
-        <!-- CAFÉ DE LA SEMANA (Dinámico) -->
-        <div id="cafe-semana-container" style="display: none; background: #fef3c7; border: 1px solid #fde68a; border-radius: var(--radius-lg); padding: 0.6rem 1rem; margin-top: -8px; margin-bottom: 0; text-align: center;">
-            <div style="font-weight: 700; color: #b45309; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.1rem;">✨ Destacado de la Semana</div>
-            <div id="cafe-semana-text" style="font-weight: 600; color: var(--text-main); font-size: 1rem;"></div>
         </div>
+    </div>
 
-        <!-- BANNER DE CUMPLEAÑOS (SE ACTIVA EN SU SEMANA) -->
-        <section class="birthday-banner hidden" id="birthday-banner">
-            <div class="birthday-icon">🎂</div>
-            <div class="birthday-content">
-                <h4>¡Feliz Semana de Cumpleaños!</h4>
-                <p>Tu café de cortesía te espera en la barra. ¡Celébralo con nosotros!</p>
-            </div>
-        </section>
-
-        <!-- PANTALLA PRINCIPAL: TARJETA DE FIDELIZACIÓN -->
-        <section class="loyalty-card" id="loyalty-card-view">
-            <!-- Cabecera de la Tarjeta -->
-            <div class="card-top">
-                <div class="member-greeting">
-                    <h2 class="member-name" id="card-member-name">¡Hola, Amigo!</h2>
-                </div>
-                <div class="member-badge" id="card-member-badge">
-                    <span class="star-empty">☆</span>
-                    <span class="star-empty">☆</span>
-                    <span class="star-empty">☆</span>
-                </div>
-            </div>
-
-            <!-- QR y Mi Café Habitual -->
-            <div class="qr-and-habitual-section">
-                <div class="qr-box">
-                    <div id="qr-code"></div>
-                </div>
-
-                <div class="habitual-preview-box">
-                    <div class="habitual-header">
-                        <span class="habitual-title">☀️ Mi Habitual</span>
-                        <button type="button" class="btn-edit-habitual" id="btn-open-habitual-modal">Editar</button>
-                    </div>
-                    <div class="habitual-drink-name" id="habitual-drink-display">Flat White</div>
-                    <div class="habitual-specs" id="habitual-specs-display">
-                        <span class="habitual-spec-tag">Solo café</span>
-                    </div>
-                    <span class="habitual-hint">Muestra este código al barista</span>
-                </div>
-            </div>
-
-            <!-- Grilla de 10 Sellos -->
-            <div class="stamps-section">
-                <div class="stamps-progress-header">
-                    <span class="progress-label" id="stamps-progress-message">Llevas 0 de 10 sellos</span>
-                    <span class="progress-count" id="stamps-count-label">0 / 10</span>
-                </div>
-
-                <div class="stamps-grid" id="stamps-grid-container">
-                    <!-- Los 10 sellos se generarán dinámicamente con app.js -->
-                </div>
-            </div>
-
-        </section>
-
-        <!-- BOTÓN VER MENÚ -->
-        <button type="button" class="menu-banner-btn" id="btn-open-menu-modal">
-            <span class="menu-banner-icon">📖</span>
-            <div class="menu-banner-text">
-                <h4>Ver Nuestra Carta</h4>
-                <p>Explora el menú completo y elige tu favorito</p>
-            </div>
-            <span class="menu-banner-arrow">→</span>
-        </button>
-        
-        <!-- ACCIONES RÁPIDAS: REFERIDOS Y PROXIMIDAD -->
-        <section class="action-grid">
-            <button type="button" class="action-card-btn" id="btn-open-referral-modal">
-                <div class="action-icon-circle gold">🤝</div>
-                <div class="action-text-content">
-                    <h4>Invita a un amigo</h4>
-                    <p>Ambos ganan 1 sello</p>
-                </div>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">&#9749;</div>
+            <span class="brand-text">Buen Dia Cafe</span>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-btn active" data-view="tables" id="nav-tables">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                <span>Mesas</span>
             </button>
-
-            <button type="button" class="action-card-btn" id="btn-toggle-proximity">
-                <div class="action-icon-circle emerald" id="proximity-icon">📍</div>
-                <div class="action-text-content">
-                    <h4 id="proximity-title">Aviso de cercanía</h4>
-                    <p id="proximity-status">Toca para activar</p>
-                </div>
+            <button class="nav-btn" data-view="menu" id="nav-menu">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span>Menu</span>
             </button>
-        </section>
-
-        <!-- FOOTER / OPCIONES DE CUENTA -->
-        <footer class="app-footer">
-            <p>Buen Día Café • Pasión por el buen café</p>
-            <p><a id="btn-switch-account">Cambiar o crear otra cuenta</a></p>
-        </footer>
-
-    </main>
-
-    <!-- ==========================================================
-         MODAL: EDITAR "MI CAFÉ HABITUAL"
-         ========================================================== -->
-    <div class="modal-overlay" id="modal-habitual">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3>☕ Tu Café Habitual</h3>
-                <button type="button" class="btn-close-modal" id="btn-close-habitual-modal">✕</button>
-            </div>
-            <p style="font-size: 13px; color: var(--text-muted);">
-                Configura tu preparación favorita para que el barista la prepare de inmediato cuando escanee tu código.
-            </p>
-
-            <form id="form-habitual" style="display: flex; flex-direction: column; gap: 14px;">
-                <div class="form-group">
-                    <label for="habitual-drink">Tipo de Bebida</label>
-                    <select id="habitual-drink" class="form-select">
-                        <option value="Flat White">Flat White</option>
-                        <option value="Capuccino">Capuccino</option>
-                        <option value="Latte">Latte</option>
-                        <option value="Americano">Americano</option>
-                        <option value="Espresso Doble">Espresso Doble</option>
-                        <option value="Cold Brew">Cold Brew</option>
-                        <option value="Mocha">Mocha</option>
-                        <option value="Filtrado V60">Filtrado V60</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="habitual-shot">Shot extra</label>
-                    <select id="habitual-shot" class="form-select">
-                        <option value="Sin shot">Sin shot</option>
-                        <option value="Shot de Caramelo">Shot de Caramelo</option>
-                        <option value="Shot de Vainilla">Shot de Vainilla</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="habitual-dessert">Postre o Sándwich</label>
-                    <select id="habitual-dessert" class="form-select">
-                        <option value="Sin postre ni sándwich">Sin postre ni sándwich</option>
-                        <option value="Croissant">Croissant</option>
-                        <option value="Galleta artesanal">Galleta artesanal</option>
-                        <option value="Brownie">Brownie</option>
-                        <option value="Cheesecake">Cheesecake</option>
-                        <option value="Muffin">Muffin</option>
-                        <option value="Sándwich Jamón y Queso">Sándwich Jamón y Queso</option>
-                        <option value="Sándwich Pollo">Sándwich Pollo</option>
-                        <option value="Tostado Mixto">Tostado Mixto</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="habitual-notes">Nota especial (Opcional)</label>
-                    <input type="text" id="habitual-notes" class="form-input" placeholder="Ej. Muy caliente, en taza de cerámica, etc.">
-                </div>
-
-                <button type="submit" class="btn-primary-action">Guardar mi Café Habitual</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ==========================================================
-         MODAL: INVITA A UN AMIGO (REFERIDOS)
-         ========================================================== -->
-    <div class="modal-overlay" id="modal-referral">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3>🤝 Invita a un Amigo</h3>
-                <button type="button" class="btn-close-modal" id="btn-close-referral-modal">✕</button>
-            </div>
-            
-            <div class="referral-share-box">
-                <p style="font-size: 13px; color: #000;">Tu código de socio amigo:</p>
-                <div class="referral-code-badge" id="referral-code-display">BUENDIA-SOCIO</div>
-                <p class="referral-rules">
-                    Comparte tu enlace por WhatsApp. Cuando tu amigo se registre y tome su primer café, ¡ambos reciben 1 sello de regalo!
-                </p>
-            </div>
-
-            <a href="#" target="_blank" class="btn-whatsapp-share" id="btn-share-whatsapp">
-                <span>💬</span> Compartir por WhatsApp
-            </a>
-
-            <button type="button" class="btn-primary-action" id="btn-copy-referral-link">
-                <span>📋</span> Copiar enlace de invitación
+            <button class="nav-btn" data-view="history" id="nav-history">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                </svg>
+                <span>Historial</span>
             </button>
+            <button class="nav-btn" data-view="balance" id="nav-balance">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                <span>Balance</span>
+            </button>
+            <button class="nav-btn" data-view="kds" id="nav-kds">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3h18v18H3zM3 9h18M9 21V9" />
+                </svg>
+                <span>Preparación</span>
+            </button>
+            <button class="nav-btn" data-view="loyalty" id="nav-loyalty">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span>Fidelidad</span>
+            </button>
+            <button class="nav-btn" data-view="settings" id="nav-settings">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                <span>Configuración</span>
+            </button>
+            <button class="nav-btn" data-view="appconfig" id="nav-appconfig">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                </svg>
+                <span>Config App Cliente</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="connection-status"
+                style="display:block;text-align:center;font-size:0.75rem;font-weight:600;margin-bottom:0.5rem;">●
+                Conectando...</span>
+            <button id="btn-change-role" class="btn btn-outline" style="width:100%;margin-bottom:1rem;">Cambiar
+                Rol</button>
+            <div class="daily-total">
+                <span class="daily-label">Venta del dia</span>
+                <span class="daily-amount" id="daily-total">$0.00</span>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- ==========================================================
-         MODAL: REGISTRO / INICIAR SESIÓN (PRIMERA VEZ)
-         ========================================================== -->
-    <div class="modal-overlay" id="modal-register">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3>Bienvenido a Buen Día Café</h3>
-            </div>
-            <p style="font-size: 13px; color: var(--text-muted);">
-                Ingresa tu nombre y teléfono para activar tu tarjeta y comenzar a sumar sellos hoy mismo.
-            </p>
-
-            <form id="form-register" style="display: flex; flex-direction: column; gap: 14px;">
-                <div class="form-group">
-                    <label for="reg-name">Nombre y Apellido</label>
-                    <input type="text" id="reg-name" class="form-input" placeholder="Ej. Camila Silva" required>
+    <main id="main-content" class="main-content">
+        <section id="view-tables" class="view active">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Mesas</h1>
+                    <p class="view-subtitle">Gestiona las mesas y pedidos</p>
                 </div>
-
-                <div class="form-group">
-                    <label for="reg-phone">Número de Teléfono / WhatsApp</label>
-                    <input type="tel" id="reg-phone" class="form-input" placeholder="Ej. +56 9 1234 5678" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="reg-birthday">Fecha de Cumpleaños (Opcional)</label>
-                    <input type="date" id="reg-birthday" class="form-input">
-                    <small style="font-size: 11px; color: var(--primary);">🎂 ¡Te regalaremos un café en tu semana de cumpleaños!</small>
-                </div>
-
-                <button type="submit" class="btn-primary-action">Comenzar y Activar Tarjeta</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- TOAST IN-APP PARA PROXIMIDAD Y REENGANCHE -->
-    <div class="app-toast" id="app-toast">
-        <div class="toast-icon" id="toast-icon">☕</div>
-        <div class="toast-body">
-            <h5 id="toast-title">¡Estás cerca de Buen Día Café!</h5>
-            <p id="toast-desc">Pasa por tu favorito y suma tu sello de hoy.</p>
-        </div>
-        <button type="button" class="toast-close-btn" id="toast-close-btn">✕</button>
-    </div>
-
-    <!-- ==========================================================
-         MODAL: MENÚ / CARTA COMPLETA
-         ========================================================== -->
-    <div class="modal-overlay" id="modal-menu">
-        <div class="modal-sheet modal-sheet-fullscreen">
-            <div class="modal-header">
-                <h3>📖 Nuestra Carta</h3>
-                <button type="button" class="btn-close-modal" id="btn-close-menu-modal">✕</button>
-            </div>
-
-            <!-- Tabs de vista: Carta / Menú interactivo -->
-            <div class="menu-tabs">
-                <button type="button" class="menu-tab active" data-tab="carta">📸 Carta</button>
-                <button type="button" class="menu-tab" data-tab="interactivo">🛒 Elegir Pedido</button>
-            </div>
-
-            <!-- TAB: Carta con imágenes -->
-            <div class="menu-tab-content active" id="tab-carta">
-                <div class="carta-carousel">
-                    <div class="carta-pages" id="carta-pages">
-                        <img src="carta1.jpg" alt="Carta página 1 - Café" class="carta-page" loading="lazy">
-                        <img src="carta2.jpg" alt="Carta página 2 - Té y Bebidas Frías" class="carta-page" loading="lazy">
-                        <img src="carta3.jpg" alt="Carta página 3 - Salados" class="carta-page" loading="lazy">
-                        <img src="carta4.jpg" alt="Carta página 4 - Dulces y Jugos" class="carta-page" loading="lazy">
-                        <img src="carta5.jpg" alt="Carta página 5 - Otros y Promociones" class="carta-page" loading="lazy">
-                    </div>
-                    <div class="carta-nav">
-                        <button type="button" class="carta-nav-btn" id="carta-prev">‹</button>
-                        <span class="carta-page-indicator" id="carta-indicator">1 / 5</span>
-                        <button type="button" class="carta-nav-btn" id="carta-next">›</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Menú interactivo -->
-            <div class="menu-tab-content" id="tab-interactivo">
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Toca un ítem para agregarlo a tu pedido habitual.</p>
-                <div class="menu-interactive" id="menu-interactive-container">
-                    <!-- Se genera dinámicamente -->
-                </div>
-                <div class="menu-selection-summary" id="menu-selection-summary" style="display:none;">
-                    <h4>🛒 Tu selección:</h4>
-                    <div id="menu-selection-items"></div>
-                    <button type="button" class="btn-primary-action" id="btn-save-menu-selection">
-                        Guardar como mi Pedido Habitual
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <button class="btn btn-outline" id="btn-change-role-mesero" style="display:none;">Cambiar
+                        Rol</button>
+                    <button class="btn btn-primary" id="btn-add-table">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Nueva Mesa
                     </button>
                 </div>
+            </header>
+            <div class="zone-selector-bar" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+                <button class="btn btn-outline zone-tab active" data-zone="salon" id="tab-zone-salon">Salón (Mapa)</button>
+                <button class="btn btn-outline zone-tab" data-zone="terraza" id="tab-zone-terraza">Terraza (Mapa)</button>
+                <button class="btn btn-outline zone-tab" data-zone="pendientes" id="tab-zone-pendientes">Pendientes (Lista)</button>
             </div>
-        </div>
-    </div>
-
-    <!-- ==========================================================
-         MODAL: INSTALACIÓN EN IOS (SAFARI)
-         ========================================================== -->
-    <div class="modal-overlay" id="modal-install-ios">
-        <div class="modal-sheet" style="text-align: center; max-height: 85vh;">
-            <div class="modal-header">
-                <button type="button" class="btn-close-modal" id="btn-close-install-ios">✖</button>
-            </div>
-            <div style="padding: 1rem;">
-                <img src="icon_yellow.png" alt="Logo" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">Instala Buen Día Café</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-                    Lleva tu tarjeta de sellos siempre contigo, sin necesidad de buscar el link.
-                </p>
-                <div style="text-align: left; background: var(--surface-bg); padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
-                    <ol style="margin-left: 1.25rem; font-size: 0.9rem; color: var(--text-main); line-height: 1.6;">
-                        <li>Toca el botón <strong>Compartir</strong> <svg style="display:inline-block; vertical-align:middle; width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en la barra inferior de Safari.</li>
-                        <li>Desliza hacia abajo y selecciona <strong>Agregar a inicio</strong> <svg style="display:inline-block; vertical-align:middle; width:20px; height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>.</li>
-                        <li>Confirma tocando <strong>Agregar</strong> arriba a la derecha.</li>
-                    </ol>
+            <div id="tables-container">
+                <div class="zone-section" id="zone-section-salon">
+                    <div class="zone-section-header">
+                        <h2>Salón</h2>
+                        <hr class="zone-divider">
+                    </div>
+                    <div class="floor-plan-container map-only">
+                        <div class="floor-plan-canvas" id="canvas-salon"></div>
+                    </div>
+                    <div class="tables-grid grid-only" id="grid-salon"></div>
                 </div>
-                <button type="button" class="btn-primary-action" id="btn-understood-install-ios">¡Entendido!</button>
+                <div class="zone-section" id="zone-section-terraza" style="display:none;">
+                    <div class="zone-section-header">
+                        <h2>Terraza</h2>
+                        <hr class="zone-divider">
+                    </div>
+                    <div class="floor-plan-container map-only">
+                        <div class="floor-plan-canvas" id="canvas-terraza"></div>
+                    </div>
+                    <div class="tables-grid grid-only" id="grid-terraza"></div>
+                </div>
+                <div class="zone-section" id="zone-section-pendientes" style="display:none;">
+                    <div class="zone-section-header">
+                        <h2>Pendientes</h2>
+                        <hr class="zone-divider">
+                    </div>
+                    <div class="tables-grid" id="grid-pendientes"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-menu" class="view">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Menu</h1>
+                    <p class="view-subtitle">Administra productos y precios</p>
+                </div>
+                <button class="btn btn-primary" id="btn-add-product">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Nuevo Producto
+                </button>
+            </header>
+            <div id="sales-chart-section" class="sales-chart-container" style="display: none; margin-bottom: 2rem;">
+                <h3 class="sales-chart-title">🏆 Productos Más Vendidos</h3>
+                <div class="chart-bars-list" id="sales-chart-list"></div>
+            </div>
+            <div class="menu-categories-bar" id="menu-categories-bar"></div>
+            <div class="menu-products-list" id="menu-products-list"></div>
+        </section>
+
+        <section id="view-history" class="view">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Historial de Ventas</h1>
+                    <p class="view-subtitle">Registro de cobros</p>
+                </div>
+                <div class="history-controls">
+                    <input type="month" id="history-month-filter" class="input-field" title="Mes completo">
+                    <input type="date" id="history-date-filter" class="input-field" title="Día específico">
+                    <button class="btn btn-outline" id="btn-clear-filter">Todos</button>
+                </div>
+            </header>
+            <div class="history-summary" id="history-summary"></div>
+            <div class="history-list" id="history-list"></div>
+        </section>
+
+        <section id="view-balance" class="view">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Balance de Productos</h1>
+                    <p class="view-subtitle">Calcula el costo de ingredientes y márgenes de ganancia</p>
+                </div>
+            </header>
+            
+            <div class="balance-tabs" style="display:flex; gap:0.5rem; margin-bottom:1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                <button class="btn btn-outline balance-tab active" data-tab="ingredients" id="tab-balance-ingredients">Registro de Ingredientes</button>
+                <button class="btn btn-outline balance-tab" data-tab="recipes" id="tab-balance-recipes">Recetas por Producto</button>
+            </div>
+            
+            <!-- Sub-vista 1: Registro de Ingredientes -->
+            <div id="balance-tab-ingredients-content" class="balance-sub-view">
+                <div class="balance-container" style="grid-template-columns: 350px 1fr;">
+                    <!-- Panel izquierdo: Agregar Ingrediente -->
+                    <div class="balance-card">
+                        <h3 class="balance-card-title">Nuevo Ingrediente</h3>
+                        <div class="form-group">
+                            <label class="form-label" for="reg-ing-name">Nombre del Ingrediente</label>
+                            <input type="text" id="reg-ing-name" class="input-field" placeholder="Ej: Café en grano, Leche...">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="reg-ing-unit">Unidad Base</label>
+                                <select id="reg-ing-unit" class="input-field">
+                                    <option value="g">Gramos (g)</option>
+                                    <option value="ml">Mililitros (ml)</option>
+                                    <option value="oz">Onzas (oz)</option>
+                                    <option value="unidades">Entero/Unidad</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="reg-ing-cost">Costo por Unidad ($)</label>
+                                <input type="number" id="reg-ing-cost" class="input-field" placeholder="0.05" min="0" step="any">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-reg-add-ingredient" style="width:100%; justify-content:center; margin-top: 1rem;">Registrar Ingrediente</button>
+                    </div>
+                    <!-- Panel derecho: Listado de Ingredientes -->
+                    <div class="balance-card" style="flex:1;">
+                        <h3 class="balance-card-title">Ingredientes Registrados</h3>
+                        <div class="search-wrapper" style="margin-bottom:1rem;">
+                            <input type="text" id="reg-ing-search" class="input-field" placeholder="Buscar ingrediente por nombre...">
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;" id="reg-ingredients-table">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border); text-align:left;">
+                                        <th style="padding:0.75rem 0.5rem; font-weight:600; color:var(--text-muted);">Nombre</th>
+                                        <th style="padding:0.75rem 0.5rem; font-weight:600; color:var(--text-muted);">Unidad Base</th>
+                                        <th style="padding:0.75rem 0.5rem; text-align:right; font-weight:600; color:var(--text-muted);">Costo Unitario</th>
+                                        <th style="padding:0.75rem 0.5rem; text-align:center; width:120px; font-weight:600; color:var(--text-muted);">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reg-ingredients-list-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sub-vista 2: Recetas por Producto -->
+            <div id="balance-tab-recipes-content" class="balance-sub-view" style="display:none;">
+                <div class="balance-container" style="grid-template-columns: 350px 1fr;">
+                    <!-- Panel izquierdo: Selección de Producto e Ingrediente -->
+                    <div class="balance-card">
+                        <h3 class="balance-card-title">Receta del Producto</h3>
+                        <div class="form-group">
+                            <label class="form-label" for="recipe-cat-select">Categoría</label>
+                            <select id="recipe-cat-select" class="input-field">
+                                <option value="">-- Categoria --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="recipe-prod-select">Producto</label>
+                            <select id="recipe-prod-select" class="input-field">
+                                <option value="">-- Elige Producto --</option>
+                            </select>
+                        </div>
+                        
+                        <div id="recipe-ingredient-add-form" style="display:none; flex-direction:column; gap:1rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:1.25rem;">
+                            <h4 style="font-size:1rem; font-weight:600; color:var(--text-main);">Agregar a la Receta</h4>
+                            <div class="form-group">
+                                <label class="form-label" for="recipe-ing-select">Seleccionar Ingrediente Base</label>
+                                <select id="recipe-ing-select" class="input-field">
+                                    <option value="">-- Elige Ingrediente --</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label class="form-label" for="recipe-ing-qty">Cantidad</label>
+                                    <input type="number" id="recipe-ing-qty" class="input-field" placeholder="15" min="0" step="any">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label class="form-label">Unidad</label>
+                                    <input type="text" id="recipe-ing-unit-display" class="input-field" readonly style="background:#cbd5e1; opacity:0.8;">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="btn-recipe-add-ingredient" style="width:100%; justify-content:center; margin-top:1rem;">Agregar a Receta</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Panel derecho: Resumen y Listado de Receta -->
+                    <div class="balance-details" style="display:flex; flex-direction:column; gap:1.5rem; flex:1;">
+                        <!-- Resumen monetario -->
+                        <div id="recipe-summary-cards" style="display:none; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:1rem; width:100%;">
+                            <div class="summary-card">
+                                <div class="summary-title">Precio de Venta</div>
+                                <div class="summary-value" id="recipe-prod-price" style="color:var(--text-main); font-size:1.35rem;">$0.00</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-title">Costo Receta</div>
+                                <div class="summary-value" id="recipe-total-cost" style="font-size:1.35rem;">$0.00</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-title">Margen Ganancia</div>
+                                <div class="summary-value" id="recipe-margin" style="font-size:1.35rem;">$0.00</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabla de Receta -->
+                        <div class="summary-card" id="recipe-list-card" style="display:none; flex:1; width:100%;">
+                            <h3 style="margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem; font-size:1rem; font-weight:600; color:var(--text-muted);">Ingredientes en la Receta</h3>
+                            <div style="overflow-x:auto;">
+                                <table style="width:100%; border-collapse:collapse; font-size:0.9rem;" id="recipe-ingredients-table">
+                                    <thead>
+                                        <tr style="border-bottom: 2px solid var(--border); text-align:left;">
+                                            <th style="padding:0.75rem 0.5rem; font-weight:600; color:var(--text-muted);">Ingrediente</th>
+                                            <th style="padding:0.75rem 0.5rem; text-align:right; font-weight:600; color:var(--text-muted);">Cantidad</th>
+                                            <th style="padding:0.75rem 0.5rem; text-align:right; font-weight:600; color:var(--text-muted);">Costo Unitario</th>
+                                            <th style="padding:0.75rem 0.5rem; text-align:right; font-weight:600; color:var(--text-muted);">Subtotal Costo</th>
+                                            <th style="padding:0.75rem 0.5rem; text-align:center; width:50px; font-weight:600; color:var(--text-muted);">Borrar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recipe-ingredients-list-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Estado vacío -->
+                        <div class="summary-card" id="recipe-empty-state" style="text-align:center; padding:5rem 2rem; color:var(--text-muted); width:100%;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem; opacity:0.5; color:var(--primary); display:block; margin-left:auto; margin-right:auto;">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <p style="font-weight:500;">Selecciona una categoría y producto a la izquierda para empezar a ver y calcular su receta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-kds" class="view">
+            <header class="view-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h1 class="view-title">Comandas (Preparación)</h1>
+                    <p class="view-subtitle">Pedidos pendientes de preparación</p>
+                </div>
+                <button class="btn btn-outline" id="btn-change-role-barista" style="height:fit-content;">Cambiar
+                    Rol</button>
+            </header>
+            <div class="tables-grid" id="kds-grid"></div>
+        </section>
+
+        <section id="view-settings" class="view">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Configuración</h1>
+                    <p class="view-subtitle">Impresoras Bluetooth y preferencias</p>
+                </div>
+            </header>
+
+            <div class="summary-card"
+                style="margin-bottom: 1.5rem; max-width: 600px; background: #e0f2fe; border: 1px solid #bae6fd;">
+                <h3 style="margin-bottom: 1rem; color: #0369a1;">Rol de este Dispositivo</h3>
+                <label style="display:flex; align-items:flex-start; gap:0.75rem; cursor:pointer;">
+                    <input type="checkbox" id="setting-is-server" style="transform: scale(1.3); margin-top: 0.25rem;">
+                    <div>
+                        <span style="font-weight: 600; color: #0c4a6e;">Actuar como Servidor de Impresión (Caja
+                            Principal)</span>
+                        <p style="font-size: 0.875rem; color: #0369a1; margin-top: 0.25rem;">Si activas esto, este PC
+                            procesará e imprimirá automáticamente las comandas enviadas por los meseros desde otras
+                            tablets.</p>
+                    </div>
+                </label>
+            </div>
+
+            <div class="summary-card" style="margin-bottom: 1.5rem; max-width: 600px;">
+                <h3 style="margin-bottom: 1rem;">Modo de Impresión</h3>
+                <div class="form-group">
+                    <select id="setting-print-mode" class="input-field" style="font-size: 1rem; padding: 0.75rem;">
+                        <option value="classic">Modo Clásico (USB / Diálogo del sistema)</option>
+                        <option value="bluetooth">Modo Directo (Bluetooth Silencioso)</option>
+                    </select>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;" id="print-mode-desc">
+                    El modo clásico abre la ventana de impresión normal de tu dispositivo para enviar boletas y comandas
+                    a tu impresora USB o red.
+                </p>
+            </div>
+
+            <div id="bluetooth-settings-panel" class="summary-card"
+                style="margin-bottom: 1.5rem; max-width: 600px; display: none;">
+                <h3 style="margin-bottom: 1rem;">Impresoras Térmicas (Bluetooth)</h3>
+
+                <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 1.5rem; cursor:pointer;">
+                    <input type="checkbox" id="setting-same-printer" style="transform: scale(1.2);">
+                    <span>Usar la misma impresora para Caja y Cocina</span>
+                </label>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md);">
+                        <h4 style="margin-bottom: 0.5rem;">Impresora de Caja</h4>
+                        <p id="status-printer-caja"
+                            style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Estado:
+                            Desconectada</p>
+                        <button class="btn btn-outline" id="btn-pair-caja" style="width:100%;">Vincular Caja</button>
+                    </div>
+
+                    <div id="container-printer-cocina"
+                        style="border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md);">
+                        <h4 style="margin-bottom: 0.5rem;">Impresora de Cocina</h4>
+                        <p id="status-printer-cocina"
+                            style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Estado:
+                            Desconectada</p>
+                        <button class="btn btn-outline" id="btn-pair-cocina" style="width:100%;">Vincular
+                            Cocina</button>
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 1rem; padding: 1rem; background: var(--bg-body); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
+                    <strong>Importante:</strong> Las impresoras térmicas deben estar emparejadas con el dispositivo
+                    previamente. Usa Chrome para mejor compatibilidad.
+                </div>
+            </div>
+        </section>
+
+        <!-- Vista de Configuración App Cliente -->
+        <section id="view-appconfig" class="view">
+            <header class="view-header">
+                <div>
+                    <h1 class="view-title">Configuración App Cliente</h1>
+                    <p class="view-subtitle">Gestiona qué ve el cliente en su aplicación</p>
+                </div>
+            </header>
+
+            <div class="summary-card" style="margin-bottom: 1.5rem; max-width: 600px;">
+                <h3 style="margin-bottom: 1rem;">Control del Local</h3>
+                <div class="form-group">
+                    <label class="form-label" for="setting-store-status">Estado del Local (App Cliente)</label>
+                    <select id="setting-store-status" class="input-field">
+                        <option value="auto">Automático (por horario)</option>
+                        <option value="open">Forzar Abierto</option>
+                        <option value="closed">Forzar Cerrado</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="btn-save-store-status" style="margin-top:0.5rem;">Guardar Estado</button>
+            </div>
+
+            <div class="summary-card" style="margin-bottom: 1.5rem; max-width: 600px;">
+                <h3 style="margin-bottom: 1rem;">Destacados de la App</h3>
+                <div class="form-group">
+                    <label class="form-label" for="setting-grano-nombre">Nombre del Grano (Headline)</label>
+                    <input type="text" id="setting-grano-nombre" class="input-field" placeholder="Colombia Huila">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="setting-grano-desc">Descripción del Grano (Headline)</label>
+                    <input type="text" id="setting-grano-desc" class="input-field" placeholder="Caramelo y Frutos Rojos">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="setting-cafe-semana">Destacado de la Semana (Banner debajo del headline)</label>
+                    <input type="text" id="setting-cafe-semana" class="input-field" placeholder="Mocaccino 15% OFF">
+                </div>
+                <button class="btn btn-primary" id="btn-save-cafe-semana" style="margin-top:0.5rem;">Guardar Destacados</button>
+            </div>
+
+            <div class="summary-card" style="margin-bottom: 1.5rem; max-width: 600px;">
+                <h3 style="margin-bottom: 1rem;">Configuración de Sendas (Premios)</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Define los premios intermedios para cada Senda (Ej: 3, 6, 10). Formato: <code>número_sello: Premio</code>.</p>
+                
+                <div id="tiers-config-container">
+                    <!-- Dinámicamente llenado por app.js -->
+                </div>
+                <button class="btn btn-primary" id="btn-save-tiers" style="margin-top:1rem;">Guardar Sendas</button>
+            </div>
+        </section>
+        <!-- Vista de Fidelización (POS / Administración) -->
+        <section id="view-loyalty" class="view">
+            <header class="view-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                    <h1 class="view-title">Club de Fidelidad</h1>
+                    <p class="view-subtitle">Gestión de tarjetas digitales de clientes y puntos</p>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <button class="btn btn-outline" id="btn-scan-qr" style="gap:0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        Escanear QR / Buscar ID
+                    </button>
+                    <button class="btn btn-primary" id="btn-add-customer">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Nuevo Cliente
+                    </button>
+                </div>
+            </header>
+
+            <div class="history-summary">
+                <div class="summary-card">
+                    <div class="summary-title">Socios Registrados</div>
+                    <div class="summary-value" id="loyalty-total-customers">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Total Sellos Entregados</div>
+                    <div class="summary-value" id="loyalty-total-stamps" style="color:var(--primary);">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Cafés de Regalo Canjeados</div>
+                    <div class="summary-value" id="loyalty-total-rewards" style="color:#d97706;">0</div>
+                </div>
+            </div>
+
+            <div class="search-wrapper" style="margin-bottom: 1.5rem; max-width: 500px;">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="loyalty-search" class="input-field search-input" placeholder="Buscar por nombre, teléfono o ID...">
+            </div>
+
+            <div class="summary-card" style="padding:0; overflow:hidden;">
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <thead>
+                            <tr style="background:var(--bg-body); border-bottom: 2px solid var(--border); text-align:left;">
+                                <th style="padding:0.875rem 1rem; font-weight:600; color:var(--text-muted);">Cliente</th>
+                                <th style="padding:0.875rem 1rem; font-weight:600; color:var(--text-muted);">Teléfono / Email</th>
+                                <th style="padding:0.875rem 1rem; font-weight:600; color:var(--text-muted);">Progreso de Sellos</th>
+                                <th style="padding:0.875rem 1rem; font-weight:600; color:var(--text-muted); text-align:center;">Canjes</th>
+                                <th style="padding:0.875rem 1rem; font-weight:600; color:var(--text-muted); text-align:center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loyalty-customers-body">
+                            <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">Cargando clientes...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="order-panel-overlay" class="overlay hidden"></div>
+    <aside id="order-panel" class="order-panel hidden">
+        <div class="order-panel-header">
+            <div>
+                <h2 class="order-panel-title" id="order-panel-title">Mesa</h2><span class="order-panel-status"
+                    id="order-panel-status">Libre</span>
+            </div>
+            <button class="btn btn-outline" id="btn-ok-order" style="padding: 0.25rem 0.75rem;">Volver</button>
+        </div>
+        <div class="order-add-section">
+            <div class="search-wrapper">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" id="order-search" class="input-field search-input" placeholder="Buscar producto...">
+            </div>
+            <div class="order-categories" id="order-categories"></div>
+            <div class="order-menu-items" id="order-menu-items"></div>
+        </div>
+        <div class="order-items-section">
+            <h3 class="order-items-heading">Pedido actual</h3>
+            <div class="order-items-list" id="order-items-list"></div>
+        </div>
+        <div class="order-footer">
+            <div id="order-subtotal-row" style="display:none; justify-content:space-between; align-items:center; font-size:0.95rem; color:var(--text-muted); margin-bottom:0.25rem;">
+                <span>Subtotal</span><span id="order-subtotal">$0</span>
+            </div>
+            <div id="order-discount-row" style="display:none; justify-content:space-between; align-items:center; font-size:0.95rem; color:#dc2626; margin-bottom:0.25rem;">
+                <span>Descuento (<span id="order-discount-pct">0</span>%)</span><span id="order-discount-amount">-$0</span>
+            </div>
+            <div id="order-tip-row" style="display:none; justify-content:space-between; align-items:center; font-size:0.95rem; color:var(--primary); margin-bottom:0.25rem;">
+                <span>Propina (10%)</span><span id="order-tip-amount">$0</span>
+            </div>
+            <div class="order-total-row"><span>Total</span><span class="order-total-amount"
+                    id="order-total">$0.00</span></div>
+            <div class="payment-selector">
+                <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; font-weight:500;">
+                    <label for="order-discount-select" style="white-space:nowrap; font-size:0.875rem;">Descuento:</label>
+                    <select id="order-discount-select" class="input-field" style="flex:1; padding:0.35rem 0.5rem; font-size:0.875rem;">
+                        <option value="0">Sin descuento</option>
+                        <option value="5">5%</option>
+                        <option value="10">10%</option>
+                        <option value="15">15%</option>
+                        <option value="20">20%</option>
+                        <option value="25">25%</option>
+                        <option value="30">30%</option>
+                        <option value="50">50%</option>
+                    </select>
+                </div>
+                <label
+                    style="display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; font-weight:500; cursor:pointer;">
+                    <input type="checkbox" id="order-tip-checkbox"> Incluir propina sugerida (10%)
+                </label>
+                <select id="order-payment-method" class="input-field" style="margin-bottom:0.5rem;">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
+            </div>
+            <div class="order-actions" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn" style="flex:1; background:#f59e0b; color:#fff;" id="btn-send-kds">Comandar</button>
+                <button class="btn btn-outline" id="btn-print-receipt"
+                    style="flex:1; border-color:var(--primary); color:var(--primary);">Imprimir Boleta</button>
+                <button class="btn btn-primary" id="btn-charge-order" style="flex:1;">Pagado</button>
+            </div>
+        </div>
+    </aside>
+
+    <div id="modal-table" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <h3 class="modal-title" id="modal-table-title">Nueva Mesa</h3>
+            <div class="form-group"><label class="form-label" for="input-table-name">Nombre del Elemento</label><input
+                    type="text" id="input-table-name" class="input-field" placeholder="Ej: Mesa 1, Barra 2..."></div>
+            <div class="form-group"><label class="form-label" for="input-table-zone">Zona</label><select
+                    id="input-table-zone" class="input-field">
+                    <option value="Salón">Salón</option>
+                    <option value="Terraza">Terraza</option>
+                    <option value="Pendientes">Pendientes</option>
+                </select></div>
+            <div class="form-group"><label class="form-label" for="input-table-type">Tipo de Elemento</label><select
+                    id="input-table-type" class="input-field">
+                    <option value="table">Mesa (Cuadrada)</option>
+                    <option value="round">Mesa (Circular)</option>
+                    <option value="bar">Barra (Rectangular)</option>
+                    <option value="sofa">Sillón (Decorativo)</option>
+                </select></div>
+            <div class="form-row" id="input-table-wh-row">
+                <div class="form-group"><label class="form-label" for="input-table-w">Ancho (%)</label><input
+                        type="number" id="input-table-w" class="input-field" placeholder="10" min="4" max="50" step="1"></div>
+                <div class="form-group"><label class="form-label" for="input-table-h">Alto (%)</label><input
+                        type="number" id="input-table-h" class="input-field" placeholder="10" min="4" max="50" step="1"></div>
+            </div>
+            <div class="form-group" id="input-table-radius-row" style="display:none;">
+                <label class="form-label" for="input-table-radius">Radio (%)</label>
+                <input type="number" id="input-table-radius" class="input-field" placeholder="10" min="4" max="30" step="1" value="10">
+            </div>
+            <div class="form-group" id="input-table-tip-container"><label
+                    style="display:flex; align-items:center; gap:.5rem; font-weight:500; cursor:pointer;"><input
+                        type="checkbox" id="input-table-tip"> Incluir propina automática (10%)</label></div>
+            <div class="modal-actions"><button class="btn-ghost" id="btn-modal-table-cancel">Cancelar</button><button
+                    class="btn btn-primary" id="btn-modal-table-save">Guardar</button></div>
+        </div>
+    </div>
+
+    <div id="modal-product" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-md">
+            <h3 class="modal-title" id="modal-product-title">Nuevo Producto</h3>
+            <div class="form-group"><label class="form-label" for="input-product-name">Nombre</label><input type="text"
+                    id="input-product-name" class="input-field" placeholder="Ej: Cafe con leche"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label" for="input-product-price">Precio ($)</label><input
+                        type="number" id="input-product-price" class="input-field" placeholder="0.00" step="0.01"
+                        min="0"></div>
+                <div class="form-group"><label class="form-label" for="input-product-category">Categoria</label><select
+                        id="input-product-category" class="input-field">
+                        <option value="Cafetería">Cafetería</option>
+                        <option value="Salado">Salado</option>
+                        <option value="Dulce">Dulce</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Cafetería fría">Cafetería fría</option>
+                        <option value="Té">Té</option>
+                    </select></div>
+            </div>
+            <div class="modal-actions"><button class="btn btn-ghost"
+                    id="btn-modal-product-cancel">Cancelar</button><button class="btn btn-primary"
+                    id="btn-modal-product-save">Guardar</button></div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Ingrediente Base -->
+    <div id="modal-ingredient" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <h3 class="modal-title" id="modal-ingredient-title">Editar Ingrediente</h3>
+            <div class="form-group">
+                <label class="form-label" for="input-ingredient-name">Nombre del Ingrediente</label>
+                <input type="text" id="input-ingredient-name" class="input-field" placeholder="Ej: Café en grano, Leche...">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="input-ingredient-unit">Unidad Base</label>
+                    <select id="input-ingredient-unit" class="input-field">
+                        <option value="g">Gramos (g)</option>
+                        <option value="ml">Mililitros (ml)</option>
+                        <option value="oz">Onzas (oz)</option>
+                        <option value="unidades">Entero/Unidad</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="input-ingredient-cost">Costo x Unidad ($)</label>
+                    <input type="number" id="input-ingredient-cost" class="input-field" placeholder="0.05" min="0" step="any">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="btn-modal-ingredient-cancel">Cancelar</button>
+                <button class="btn btn-primary" id="btn-modal-ingredient-save">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- PWA Install Banner (Android/Chrome) -->
-    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 1rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; align-items: center; justify-content: space-between; gap: 1rem; border-top-left-radius: 16px; border-top-right-radius: 16px;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
-            <img src="icon_yellow.png" style="width: 40px; height: 40px; border-radius: 8px;">
-            <div style="font-size: 0.85rem;">
-                <div style="font-weight: bold; color: var(--text-main);">Instalar App</div>
-                <div style="color: var(--text-muted);">Acceso rápido y fácil</div>
-            </div>
+    <div id="modal-confirm" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <h3 class="modal-title">Confirmar</h3>
+            <p class="modal-message" id="modal-confirm-message">Seguro?</p>
+            <div class="modal-actions"><button class="btn btn-ghost" id="btn-confirm-cancel">Cancelar</button><button
+                    class="btn btn-danger" id="btn-confirm-ok">Eliminar</button></div>
         </div>
-        <button id="btn-pwa-install" style="background: var(--brand-accent); color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;">Instalar</button>
-        <button id="btn-pwa-close" style="background: none; border: none; font-size: 1.2rem; color: var(--text-muted); padding: 0.5rem;">✖</button>
     </div>
 
-    <!-- Lógica de la aplicación -->
-    <script src="app.js"></script>
+    <div id="print-ticket" class="print-area">
+        <div class="ticket-header">
+            <h2 class="ticket-brand">Buen Dia Cafe</h2>
+            <p class="ticket-date" id="ticket-date"></p>
+            <p class="ticket-table" id="ticket-table"></p>
+        </div>
+        <div class="ticket-divider">--------------------------------</div>
+        <table class="ticket-items" id="ticket-items">
+            <thead>
+                <tr>
+                    <th class="ticket-th-left">Cant</th>
+                    <th class="ticket-th-left">Producto</th>
+                    <th class="ticket-th-right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="ticket-items-body"></tbody>
+        </table>
+        <div class="ticket-divider">--------------------------------</div>
+        <div class="ticket-total"><span>TOTAL</span><span id="ticket-total-amount">$0.00</span></div>
+        <div class="ticket-divider">--------------------------------</div>
+        <p class="ticket-footer">Gracias por su visita!</p>
+    </div>
 
+    <div id="print-comanda" class="print-area">
+        <div class="ticket-header">
+            <h2 class="ticket-brand" style="font-size: 28px;">COMANDA</h2>
+            <p class="ticket-date" id="comanda-date" style="font-size: 16px;"></p>
+            <p class="ticket-table" id="comanda-table" style="font-size: 24px; font-weight: bold; margin-top: 5px;"></p>
+        </div>
+        <div class="ticket-divider">--------------------------------</div>
+        <table class="ticket-items" id="comanda-items">
+            <thead>
+                <tr>
+                    <th class="ticket-th-left" style="width:40px; font-size: 18px;">Cant</th>
+                    <th class="ticket-th-left" style="font-size: 18px;">Producto</th>
+                </tr>
+            </thead>
+            <tbody id="comanda-items-body"></tbody>
+        </table>
+        <div class="ticket-divider">--------------------------------</div>
+        <p class="ticket-footer">A preparar!</p>
+    </div>
+
+    <!-- Modal Nuevo / Editar Cliente -->
+    <div id="modal-customer" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-sm">
+            <h3 class="modal-title" id="modal-customer-title">Nuevo Socio de Fidelidad</h3>
+            <div class="form-group">
+                <label class="form-label" for="input-customer-name">Nombre del Cliente *</label>
+                <input type="text" id="input-customer-name" class="input-field" placeholder="Ej: María Pérez">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="input-customer-phone">Teléfono / Celular *</label>
+                <input type="tel" id="input-customer-phone" class="input-field" placeholder="Ej: +56 9 1234 5678">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="input-customer-email">Email (Opcional)</label>
+                <input type="email" id="input-customer-email" class="input-field" placeholder="ejemplo@correo.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="input-customer-stamps">Sellos Acumulados</label>
+                <input type="number" id="input-customer-stamps" class="input-field" min="0" max="10" value="0">
+            </div>
+            <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.5rem;">
+                <button class="btn btn-outline" id="btn-modal-customer-cancel">Cancelar</button>
+                <button class="btn btn-primary" id="btn-modal-customer-save">Guardar Socio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Escáner QR / Búsqueda en Caja -->
+    <div id="modal-qr-scanner" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-md">
+            <h3 class="modal-title">Escanear QR o Buscar Cliente</h3>
+            <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1rem;">
+                Ingresa el ID del socio, su teléfono, o activa la cámara para escanear el QR del cliente.
+            </p>
+
+            <!-- Sección cámara QR -->
+            <div id="qr-camera-section" style="margin-bottom:1rem;">
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                    <button class="btn btn-outline" id="btn-start-camera" style="flex:1; gap:0.4rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        Activar Cámara
+                    </button>
+                    <button class="btn btn-outline" id="btn-stop-camera" style="display:none; flex:1; gap:0.4rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        </svg>
+                        Detener Cámara
+                    </button>
+                </div>
+                <!-- El lector de cámara se renderiza aquí -->
+                <div id="qr-camera-reader" style="width:100%; border-radius:0.75rem; overflow:hidden; background:#000; min-height:0;"></div>
+                <p id="qr-camera-status" style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-top:0.4rem; display:none;">Apunta la cámara al código QR del cliente...</p>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+                <span style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;">o busca manualmente</span>
+                <div style="flex:1; height:1px; background:var(--border);"></div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="input-qr-code" class="input-field" placeholder="Escribe el ID, teléfono o nombre..." style="font-size:1.1rem; padding:0.75rem;">
+            </div>
+            <div id="qr-scan-result" style="margin-top:1rem; display:none;"></div>
+            <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.5rem;">
+                <button class="btn btn-outline" id="btn-modal-qr-cancel">Cerrar</button>
+                <button class="btn btn-primary" id="btn-modal-qr-search">Buscar / Procesar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vista Especial Tarjeta de Fidelidad Digital del Cliente (Vista Móvil / PWA) -->
+    <div id="view-customer-card" class="customer-card-overlay hidden">
+        <div class="customer-card-container">
+            <button id="btn-close-customer-card" class="btn-card-close">&times;</button>
+
+            <!-- Cabecera de la Tarjeta -->
+            <div class="card-pass-header">
+                <div class="card-brand">
+                    <span class="card-brand-icon">☕</span>
+                    <div>
+                        <div class="card-brand-name">Buen Día Café</div>
+                        <div class="card-pass-badge">Club de Fidelidad</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saludo al Cliente -->
+            <div class="card-customer-info">
+                <h2 id="card-customer-name">¡Hola, Socio!</h2>
+                <p id="card-customer-status" class="card-status-text">Llevas 0 de 10 sellos acumulados</p>
+            </div>
+
+            <!-- Grilla de 10 Sellos Digitales -->
+            <div class="card-stamps-grid" id="card-stamps-grid">
+                <!-- Se generan dinámicamente en JS -->
+            </div>
+
+            <!-- Banner de Recompensa -->
+            <div id="card-reward-banner" class="card-reward-banner" style="display:none;">
+                <span style="font-size:1.5rem;">🎉</span>
+                <div>
+                    <strong>¡RECOMPENSA LISTA!</strong>
+                    <p style="font-size:0.8rem; margin:0;">Muestra este código en caja para canjear tu café gratis.</p>
+                </div>
+            </div>
+
+            <!-- Código QR del Cliente -->
+            <div class="card-qr-box">
+                <div id="card-qr-code" style="display:flex; justify-content:center; align-items:center; min-height:160px; background:#fff; padding:10px; border-radius:12px;"></div>
+                <div class="card-qr-id" id="card-customer-id">ID: -------</div>
+                <p class="card-qr-hint">Muestra este código al mozo/cajero para sumar sellos</p>
+            </div>
+
+            <!-- Banner PWA para guardar en Pantalla de Inicio -->
+            <div class="pwa-install-box">
+                <div class="pwa-install-title">📱 Guardar en tu teléfono</div>
+                <p class="pwa-install-desc">
+                    <strong>En iPhone:</strong> Toca <span style="display:inline-block; transform:translateY(2px);">📤</span> en Safari y elige <em>"Agregar a Inicio"</em>.<br>
+                    <strong>En Android:</strong> Toca <span style="display:inline-block;">⋮</span> en Chrome y elige <em>"Instalar aplicación"</em>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QR Camera Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-database-compat.js"></script>
+    <!-- App Logic -->
+    <script src="app.js?v=11"></script>
 </body>
 
 </html>
