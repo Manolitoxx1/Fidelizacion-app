@@ -79,22 +79,25 @@ h1, h2, h3, h4, .brand-title {
 .live-status-bar {
   background: #FFE500;
   border-radius: var(--radius-lg);
-  padding: 12px 14px;
+  padding: 14px 14px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   box-shadow: var(--shadow-card);
 }
 
 .live-status-top {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 10px;
 }
 
 .brand-badge {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .brand-logo-img {
@@ -102,11 +105,10 @@ h1, h2, h3, h4, .brand-title {
   width: auto;
   object-fit: cover;
   object-position: center bottom;
-  margin-top: -20px;
-  margin-bottom: -15px;
-  margin-left: -5px;
+  margin-top: -10px;
+  margin-bottom: -10px;
   transform: scale(1.3);
-  transform-origin: left center;
+  transform-origin: center center;
 }
 
 .open-status-pill {
@@ -151,11 +153,13 @@ h1, h2, h3, h4, .brand-title {
 .bean-of-week {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding-top: 4px;
-  margin-top: 12px;
+  padding-top: 6px;
+  margin-top: 2px;
   font-size: 12px;
   color: #333333;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .bean-icon {
@@ -509,10 +513,11 @@ h1, h2, h3, h4, .brand-title {
 .stamp-slot.active .stamp-icon {
   opacity: 1;
   filter: none;
-  width: 55px;
-  height: 55px;
+  width: 85%;
+  height: 85%;
   position: absolute;
   z-index: 10;
+  border-radius: 0;
   animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
