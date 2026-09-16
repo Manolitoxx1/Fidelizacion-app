@@ -79,25 +79,25 @@ h1, h2, h3, h4, .brand-title {
 .live-status-bar {
   background: #FFE500;
   border-radius: var(--radius-lg);
-  padding: 18px 16px 16px;
+  padding: 6px 16px 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   box-shadow: var(--shadow-card);
-  min-height: 100px;
+  min-height: 65px;
 }
 
 .live-status-top {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  min-height: 80px;
+  min-height: 50px;
 }
 
 .brand-badge {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   flex-shrink: 0;
 }
@@ -113,9 +113,11 @@ h1, h2, h3, h4, .brand-title {
 }
 
 .brand-logo-img {
-  height: 90px; 
+  height: 125px; 
   width: auto;
   object-fit: contain;
+  margin-top: -16px;
+  margin-left: -2px;
 }
 
 .open-status-pill {
@@ -171,10 +173,11 @@ h1, h2, h3, h4, .brand-title {
 }
 
 .bean-text {
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 11px;
+  line-height: 1.4;
 }
 
 .bean-text strong {
