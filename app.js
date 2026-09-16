@@ -256,7 +256,7 @@ function updateLiveCafeStatus() {
 
     if (isOpen) {
         cafeOpenPill.classList.remove('closed');
-        cafeStatusText.textContent = `Abierto • Cierra a las ${closesAt}`;
+        cafeStatusText.textContent = `Abierto hasta ${closesAt}`;
     } else {
         cafeOpenPill.classList.add('closed');
         cafeStatusText.textContent = `Cerrado • Abrimos 08:00`;
@@ -435,18 +435,18 @@ function renderStampsGrid(stamps, tier) {
         slot.className = `stamp-slot${isActive ? ' active' : ''}${milestoneClass}`;
 
         if (isActive) {
-            // Sello activo: muestra la imagen sello.png (GRANO_SOL_SVG)
-            slot.innerHTML = `
-                ${tagHtml}
-                <span class="stamp-icon">${GRANO_SOL_SVG}</span>
-                <span class="stamp-badge-label">${badgeLabel}</span>
-            `;
-        } else {
-            // Sello vacío: muestra el logo original (grano de café sol sin letras) en gris
+            // Sello activo: muestra grano_sol.png en negro
             slot.innerHTML = `
                 ${tagHtml}
                 <span class="stamp-icon">${GRANO_VACIO_SVG}</span>
-                <span class="stamp-badge-label">${badgeLabel}</span>
+                ${badgeLabel === '🎁' ? `<span class="stamp-badge-label">${badgeLabel}</span>` : ''}
+            `;
+        } else {
+            // Sello vacío: muestra grano_sol.png en gris (grano de café sol sin letras)
+            slot.innerHTML = `
+                ${tagHtml}
+                <span class="stamp-icon">${GRANO_VACIO_SVG}</span>
+                ${badgeLabel === '🎁' ? `<span class="stamp-badge-label">${badgeLabel}</span>` : ''}
             `;
         }
         stampsGridContainer.appendChild(slot);
