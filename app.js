@@ -756,7 +756,7 @@ function initEventListeners() {
                     name: name,
                     phone: phone,
                     birthdate: birthday || null,
-                    stamps: 0,
+                    stamps: referrer ? 1 : 0,
                     tier: 1,
                     starsEarned: 0,
                     rewardsClaimed: 0,
@@ -772,10 +772,26 @@ function initEventListeners() {
                 };
 
                 db.ref(`customers/${newId}`).set(newCustomer).then(() => {
+                    if (referrer) {
+                        db.ref('customers').orderByChild('referralCode').equalTo(referrer).once('value', (snap) => {
+                            if (snap.exists()) {
+                                const refData = snap.val();
+                                const refId = Object.keys(refData)[0];
+                                const currentStamps = refData[refId].stamps || 0;
+                                db.ref(`customers/${refId}/stamps`).set(currentStamps + 1);
+                            }
+                        });
+                    }
+
                     currentCustomerId = newId;
                     localStorage.setItem('buendia_customer_id', newId);
                     loadCustomerRealtime(newId);
-                    showToast('🎉 ¡Bienvenido a Buen Día Café!', 'Tu tarjeta ya está lista. ¡Comienza tu Senda Bronce!', '☀️');
+                    
+                    if (referrer) {
+                        showToast('🎉 ¡Bienvenido!', '¡Por usar un código de referido ya tienes tu primer sello gratis!', '🎁');
+                    } else {
+                        showToast('🎉 ¡Bienvenido a Buen Día Café!', 'Tu tarjeta ya está lista. ¡Comienza tu Senda Bronce!', '☀️');
+                    }
                 });
             }
         });
