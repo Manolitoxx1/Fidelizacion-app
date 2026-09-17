@@ -259,7 +259,7 @@ function updateLiveCafeStatus() {
         cafeStatusText.textContent = `Abierto hasta las ${closesAt}`;
     } else {
         cafeOpenPill.classList.add('closed');
-        cafeStatusText.textContent = `Cerrado • Abrimos 08:00`;
+        cafeStatusText.textContent = `Cerrado`;
     }
 }
 
