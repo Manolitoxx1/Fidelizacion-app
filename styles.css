@@ -134,6 +134,7 @@ h1, h2, h3, h4, .brand-title {
   color: #FFE500;
   border: none;
   white-space: nowrap;
+  transform: translateX(-8px);
 }
 
 .open-status-pill.closed {
